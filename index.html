@@ -3,444 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jojo's Rainbow World</title>
+    <title>jojo's rainbow world</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Yuyu+Short&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Pixel&display=swap" rel="stylesheet">
 
     <style>
-        /* Base Canvas Styles */
         body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #000000;
-            color: #ffffff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden;
-            user-select: none;
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: #000000; color: #ffffff;
+            font-family: 'Geist Pixel', monospace, sans-serif;
+            overflow: hidden; user-select: none;
         }
 
-        /* Fullscreen DotField Background */
+        /* 背景画布 */
         #dotFieldCanvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            pointer-events: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1; pointer-events: none;
         }
 
-        /* Page wrapper management */
-        .page {
+        /* 页面容器 */
+        .page-content {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; width: 100vw; height: 100vh;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.6s ease;
+            z-index: 15; box-sizing: border-box;
+        }
+        .page-content.active { opacity: 1; pointer-events: auto; }
+
+        /* P1 完美左右分栏布局 */
+        #p1-content {
+            flex-direction: row; justify-content: space-between; align-items: center; padding: 0 6% 0 8%;
+        }
+        .p1-left-panel {
+            display: flex; flex-direction: column; justify-content: center; align-items: flex-start; 
+            width: 50vw; min-width: 520px; z-index: 20;
+        }
+        .p1-right-panel {
+            width: 36vw; height: 60vh; min-width: 300px; display: flex; justify-content: center; align-items: center; z-index: 20;
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px;
+            backdrop-filter: blur(5px); overflow: hidden;
+        }
+        /* 媒体融合容器 */
+        .blend-media {
+            width: 100%; height: 100%; object-fit: cover;
+            mix-blend-mode: color-burn; opacity: 0.85;
+        }
+
+        /* P2 留言板居中 */
+        #p2-content { flex-direction: column; justify-content: center; align-items: center; }
+
+        /* 共有无缝自适应彩虹 */
+        #shared-rainbow {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 10;
-        }
-
-        .page.active {
-            display: flex;
-        }
-
-        /* --- RAINBOW SWIPE TRANSITION --- */
-        #rainbow-transition {
-            position: fixed;
-            top: 0;
-            width: 150%;
-            height: 100%;
-            background: linear-gradient(90deg, 
-                rgba(255,0,0,1) 0%, 
-                rgba(255,127,0,1) 16%, 
-                rgba(255,255,0,1) 33%, 
-                rgba(0,255,0,1) 50%, 
-                rgba(0,0,255,1) 66%, 
-                rgba(75,0,130,1) 83%, 
-                rgba(148,0,211,1) 100%);
-            box-shadow: 0 0 100px rgba(255,255,255,0.4);
-            z-index: 9999;
-            pointer-events: none;
-            display: none;
-        }
-
-        .swipe-forward-animation {
-            display: block !important;
-            animation: rainbowSwipeForward 1.6s cubic-bezier(0.42, 0, 0.58, 1) forwards;
-        }
-
-        @keyframes rainbowSwipeForward {
-            0% { left: 100%; transform: skewX(-15deg); }
-            50% { left: -25%; transform: skewX(-15deg); }
-            100% { left: -150%; transform: skewX(-15deg); }
-        }
-
-        .swipe-backward-animation {
-            display: block !important;
-            animation: rainbowSwipeBackward 1.6s cubic-bezier(0.42, 0, 0.58, 1) forwards;
-        }
-
-        @keyframes rainbowSwipeBackward {
-            0% { left: -150%; transform: skewX(15deg); }
-            50% { left: -25%; transform: skewX(15deg); }
-            100% { left: 100%; transform: skewX(15deg); }
-        }
-
-        /* --- PAGE 1 ELEMENTS --- */
-        #page-1 { z-index: 12; }
-        .container { text-align: center; position: relative; z-index: 15; pointer-events: auto; }
-        
-        .rainbow-bg {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(1);
-            width: 600px;
-            height: 300px;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
             background: radial-gradient(circle at 50% 100%, 
-                rgba(255, 0, 0, 0.4) 0%, rgba(255, 127, 0, 0.4) 15%, rgba(255, 255, 0, 0.4) 30%, 
-                rgba(0, 255, 0, 0.4) 45%, rgba(0, 0, 255, 0.4) 60%, rgba(75, 0, 130, 0.4) 75%, rgba(148, 0, 211, 0) 90%);
-            border-radius: 300px 300px 0 0;
-            filter: blur(30px);
-            z-index: -1;
-            transition: transform 1.5s cubic-bezier(0.7, 0, 0.3, 1), filter 1.5s ease;
+                rgba(255, 0, 0, 0.45) 0%, rgba(255, 127, 0, 0.45) 15%, 
+                rgba(255, 255, 0, 0.45) 30%, rgba(0, 255, 0, 0.45) 45%, 
+                rgba(0, 0, 255, 0.45) 60%, rgba(75, 0, 130, 0.45) 75%, 
+                rgba(148, 0, 211, 0) 90%);
+            z-index: 5;
+            transition: all 1.4s cubic-bezier(0.19, 1, 0.22, 1), filter 1.2s ease;
         }
-
-        .canvas-container {
-            position: relative;
-            width: 95vw;
-            height: 180px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        p {
-            font-family: 'Yuyu Short', sans-serif;
-            font-size: 1.6rem;
-            margin-top: 25px;
-            color: #cccccc;
-            opacity: 0;
-            animation: fadeIn 1s ease forwards;
-            animation-delay: 1s;
-        }
-
-        .rainbow-btn {
-            font-family: 'Yuyu Short', sans-serif;
-            display: inline-block;
-            padding: 14px 42px;
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: white;
-            background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
-            background-size: 400% 400%;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 0 15px rgba(255,255,255,0.3);
-            animation: rainbowShift 5s ease infinite;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            position: relative;
-            z-index: 100;
-        }
-
-        .rainbow-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 25px rgba(255,255,255,0.7);
-        }
-
-        .start-btn {
-            margin-top: 35px;
-            font-size: 1.9rem;
-            padding: 18px 48px;
-            opacity: 0;
-            animation: fadeIn 1s ease forwards, rainbowShift 5s ease infinite;
-            animation-delay: 1.5s;
-        }
-
-        .zoom-rainbow { transform: translate(-50%, -50%) scale(6) !important; filter: blur(5px) !important; }
-
-        /* --- PAGE 2 ELEMENTS --- */
-        #page-2 { flex-direction: column; }
         
-        .board-container {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 40px;
-            border-radius: 25px;
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-            width: 90%;
-            max-width: 520px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-            position: relative;
-            z-index: 50;
+        #shared-rainbow.state-p1 {
+            width: 700px; height: 350px; border-radius: 350px 350px 0 0; filter: blur(25px);
         }
 
-        .board-container h2 {
-            font-family: 'Yuyu Short', sans-serif;
-            font-size: 2rem;
+        #shared-rainbow.state-p2 {
+            width: 1800px; height: 900px; border-radius: 900px 900px 0 0; filter: blur(12px);
+            background: radial-gradient(circle at 50% 100%, 
+                rgba(255, 0, 0, 0.25) 0%, rgba(255, 127, 0, 0.25) 15%, 
+                rgba(255, 255, 0, 0.25) 30%, rgba(0, 255, 0, 0.25) 45%, 
+                rgba(0, 0, 255, 0.25) 60%, rgba(75, 0, 130, 0.25) 75%, 
+                rgba(148, 0, 211, 0) 90%);
         }
 
+        /* --- 阶梯式流式加载效果 --- */
+        .split-word { display: inline-block; white-space: nowrap; }
+        .split-char, .cascade-item {
+            display: inline-block; opacity: 0; transform: translateY(40px);
+            transition: opacity 1.25s cubic-bezier(0.215, 0.610, 0.355, 1), 
+                        transform 1.25s cubic-bezier(0.215, 0.610, 0.355, 1);
+        }
+        .split-char.animate-in, .cascade-item.animate-in { opacity: 1; transform: translateY(0); }
+
+        /* 状态锁：二次加载直接呈现 */
+        .no-anim .split-char, .no-anim .cascade-item {
+            opacity: 1 !important; transform: translateY(0) !important; transition: none !important;
+        }
+
+        textarea.cascade-item, div.cascade-item { display: block; }
+        button.cascade-item { display: inline-block; }
+
+        /* --- 炫彩按钮 --- */
+        .rainbow-btn {
+            font-family: 'Geist Pixel', monospace, sans-serif;
+            padding: 14px 42px; font-size: 1.4rem; font-weight: bold; color: white;
+            background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+            background-size: 400% 400%; border: none; border-radius: 50px;
+            cursor: pointer; box-shadow: 0 0 15px rgba(255,255,255,0.3);
+            animation: rainbowShift 5s ease infinite;
+            transition: transform 0.2s ease, filter 0.3s ease, box-shadow 0.2s ease;
+            z-index: 100; position: relative;
+        }
+        .rainbow-btn:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(255,255,255,0.6); }
+        .rainbow-btn:active { filter: grayscale(100%) brightness(0.4) saturate(0); transform: scale(0.96); }
+
+        /* 强制画布高度和宽度，防止右侧挤压 */
+        .canvas-container { position: relative; width: 100%; height: 120px; display: flex; justify-content: flex-start; align-items: center; }
+        .p1-subtitle { font-size: 1.3rem; margin-top: 15px; color: #cccccc; text-align: left; }
+        .start-btn { margin-top: 30px; }
+
+        /* P2 留言板 */
+        #p2-star-layer { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; z-index: 55; }
+        .board-container { width: 90%; max-width: 580px; text-align: center; z-index: 60; }
+        .board-container h2 { font-size: 2.2rem; margin-top: 0; margin-bottom: 25px; }
         .board-container textarea {
-            font-family: 'Yuyu Short', sans-serif;
-            width: 100%;
-            height: 110px;
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 12px;
-            color: white;
-            padding: 14px;
-            font-size: 1.3rem;
-            resize: none;
-            box-sizing: border-box;
+            font-family: 'Geist Pixel', monospace, sans-serif;
+            width: 100%; height: 120px; background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255,255,255,0.3); border-radius: 12px;
+            color: white; padding: 14px; font-size: 1.2rem; resize: none; margin-bottom: 25px;
+            backdrop-filter: blur(10px);
         }
-
-        .board-container textarea:focus { outline: none; border-color: #ff7f00; }
-        .board-container button {
-            font-family: 'Yuyu Short', sans-serif;
-            margin-top: 20px;
-            padding: 12px 32px;
-            background: #ffffff;
-            border: none;
-            border-radius: 24px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s;
+        .board-container textarea:focus { outline: none; border-color: #ffffff; }
+        .board-actions { display: flex; gap: 20px; justify-content: center; align-items: stretch; }
+        .action-button-block { flex: 1; display: flex; flex-direction: column; align-items: center; }
+        
+        .board-submit-btn {
+            font-family: 'Geist Pixel', monospace, sans-serif;
+            width: 100%; padding: 12px 10px; border: none; border-radius: 20px;
+            font-size: 1.1rem; font-weight: bold; cursor: pointer; color: white;
+            transition: transform 0.2s, filter 0.3s;
         }
-        .board-container button:hover { background: #ff7f00; color: white; }
+        .btn-private { background: #a3e635; color: black; } 
+        .btn-private:active { filter: grayscale(100%) brightness(0.4); transform: scale(0.97); }
+        .btn-public { background: #06b6d4; color: black; } 
+        .btn-public:active { filter: grayscale(100%) brightness(0.4); transform: scale(0.97); }
+        
+        .button-subheading { font-size: 0.85rem; color: #eeeeee; margin-top: 10px; line-height: 1.3; }
 
         .nav-bottom-left { position: absolute; bottom: 30px; left: 30px; z-index: 100; }
         .nav-bottom-right { position: absolute; bottom: 30px; right: 30px; z-index: 100; }
 
-        /* --- PAGE 3 INTERACTIVE GLASS BOOK --- */
-        .book-scene {
-            perspective: 1500px;
-            z-index: 50;
-            position: relative;
-        }
-
-        .book-container {
-            width: 380px;
-            height: 480px;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 1s ease, width 1s ease;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            border-radius: 15px;
-        }
-
-        .spring-rotate-animation {
-            animation: appleSpringShowcase 2.4s cubic-bezier(0.25, 1.5, 0.4, 1) forwards;
-        }
-
-        @keyframes appleSpringShowcase {
-            0% { transform: rotateY(0deg) scale(1); }
-            50% { transform: rotateY(180deg) scale(1.05); }
-            100% { transform: rotateY(360deg) scale(1); }
-        }
-
-        .book-container.open {
-            width: 760px;
-            transform: translateX(0);
-        }
-
-        .book-cover, .book-inside-left, .book-inside-right {
-            position: absolute;
-            top: 0;
-            width: 50%;
-            height: 100%;
-            box-sizing: border-box;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            transition: transform 1s ease;
-            backface-visibility: hidden;
-            border-radius: 0 15px 15px 0;
-        }
-
-        .book-cover {
-            width: 100%;
-            left: 0;
-            background: rgba(255, 255, 255, 0.12);
-            border: 3px solid rgba(212, 175, 55, 0.4);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            text-align: center;
-            transform-origin: left center;
-            z-index: 55;
-            box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.05);
-        }
-
-        .book-cover h2 {
-            color: #d4af37;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 2.2rem;
-            font-weight: 700;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.6);
-            margin-bottom: 40px;
-        }
-
-        .book-container.open .book-cover {
-            transform: rotateY(-180deg);
-        }
-
-        .book-inside-left {
-            left: 0;
-            width: 50%;
-            border-right: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            opacity: 0;
-            transition: opacity 0.5s ease 0.4s;
-            border-radius: 15px 0 0 15px;
-        }
-
-        .book-inside-right {
-            right: 0;
-            width: 50%;
-            border-left: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 25px;
-            opacity: 0;
-            transition: opacity 0.5s ease 0.4s;
-            border-radius: 0 15px 15px 0;
-        }
-
-        .book-container.open .book-inside-left,
-        .book-container.open .book-inside-right {
-            opacity: 1;
-        }
-
-        .book-container.open::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            width: 2px;
-            height: 100%;
-            background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.3), transparent);
-            z-index: 60;
-        }
-
-        .video-intro {
-            font-family: 'Yuyu Short', sans-serif;
-            font-size: 1.3rem;
-            margin-bottom: 15px;
-            line-height: 1.4;
-            color: #ffffff;
-            text-shadow: 0 0 8px rgba(255,255,255,0.4);
-            text-align: center;
-        }
-
-        video {
-            width: 100%;
-            max-height: 240px;
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            background: #000;
-        }
-
-        .book-inside-right p {
-            font-family: 'Yuyu Short', sans-serif;
-            font-size: 1.25rem !important;
-            line-height: 1.6;
-            margin-top: 10px;
-        }
-
-        .book-inside-right h3 {
-            font-family: 'Yuyu Short', sans-serif;
-            color: #ff7f00;
-            margin-top: 0;
-            font-size: 1.6rem;
-        }
-
-        .book-side-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: white;
-            font-size: 1.8rem;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            transition: background 0.3s, transform 0.2s;
-            display: none;
-        }
-        .book-side-nav:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-50%) scale(1.1);
-        }
-        #book-nav-prev { left: -70px; }
-        #book-nav-next { right: -70px; }
-
-        /* --- FLYING STARS (USER BULLETS) --- */
+        /* 弹幕星星 */
         .flying-star {
-            font-family: 'Yuyu Short', sans-serif;
-            position: absolute;
-            white-space: nowrap;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            padding: 10px 22px;
-            border-radius: 25px;
-            border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
-            font-size: 1.3rem;
-            cursor: pointer;
-            z-index: 60;
-            color: #ffffff;
-            transition: border-color 0.3s;
-            animation: orbit linear infinite;
+            font-family: 'Geist Pixel', monospace, sans-serif;
+            position: absolute; white-space: nowrap; padding: 10px 22px;
+            font-size: 1.1rem; cursor: pointer; z-index: 60; color: #ffffff;
+            background: rgba(255, 255, 255, 0.1); border-radius: 25px;
+            border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(5px);
         }
-        .flying-star:hover {
-            border-color: #06B6D4;
-            box-shadow: 0 0 25px rgba(6, 182, 212, 0.5);
+        .private-star { border-color: rgba(163, 230, 53, 0.5); text-shadow: 0 0 8px rgba(163, 230, 53, 0.8); }
+        
+        /* 刷屏特效 */
+        #rainbow-transition {
+            position: fixed; top: 0; width: 150%; height: 100%;
+            background: linear-gradient(90deg, rgba(255,0,0,1) 0%, rgba(255,127,0,1) 16%, rgba(255,255,0,1) 33%, rgba(0,255,0,1) 50%, rgba(0,0,255,1) 66%, rgba(75,0,130,1) 83%, rgba(148,0,211,1) 100%);
+            z-index: 9999; pointer-events: none; display: none;
+        }
+        .swipe-forward { display: block !important; animation: swipeFor 1.6s cubic-bezier(0.42, 0, 0.58, 1) forwards; }
+        @keyframes swipeFor { 0% { left: 100%; transform: skewX(-15deg); } 50% { left: -25%; } 100% { left: -150%; transform: skewX(-15deg); } }
+        .swipe-backward { display: block !important; animation: swipeBack 1.6s cubic-bezier(0.42, 0, 0.58, 1) forwards; }
+        @keyframes swipeBack { 0% { left: -150%; transform: skewX(15deg); } 50% { left: -25%; } 100% { left: 100%; transform: skewX(15deg); } }
+
+        /* P3 3D 照片墙空间 */
+        #page-3 { background: #000; display: none; }
+        #page-3.active { display: flex; }
+        .dome-scene { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; transform-style: preserve-3d; cursor: grab; perspective: 1200px;}
+        .dome-wrapper { position: relative; width: 0; height: 0; transform-style: preserve-3d; }
+        
+        .dome-segment {
+            position: absolute; left: -110px; top: -140px; width: 220px; height: 280px;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px;
+            overflow: hidden; filter: grayscale(100%); transition: all 0.4s ease; backface-visibility: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .dome-segment img {
+            width: 100%; height: 100%; object-fit: cover; pointer-events: none;
+        }
+        .dome-segment:hover { 
+            filter: grayscale(0%); border-color: rgba(255,255,255,0.7); 
+            box-shadow: 0 0 25px rgba(255,255,255,0.2); transform: scale(1.05);
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes rainbowShift {
-            0% { background-position: 0% 50% }
-            50% { background-position: 100% 50% }
-            100% { background-position: 0% 50% }
-        }
+        @keyframes rainbowShift { 0% { background-position: 0% 50% } 50% { background-position: 100% 50% } 100% { background-position: 0% 50% } }
         @keyframes orbit {
             0% { transform: translate(0, 0) rotate(0deg); }
-            25% { transform: translate(180px, -80px) rotate(2deg); }
-            50% { transform: translate(90px, 140px) rotate(-2deg); }
-            75% { transform: translate(-140px, 60px) rotate(1deg); }
+            25% { transform: translate(150px, -60px) rotate(2deg); }
+            50% { transform: translate(70px, 120px) rotate(-2deg); }
+            75% { transform: translate(-120px, 50px) rotate(1deg); }
             100% { transform: translate(0, 0) rotate(0deg); }
         }
     </style>
@@ -448,427 +204,300 @@
 <body>
 
     <canvas id="dotFieldCanvas"></canvas>
-
     <div id="rainbow-transition"></div>
+    <div id="shared-rainbow" class="state-p1"></div>
 
-    <div id="page-1" class="page active">
-        <div class="container">
-            <div class="rainbow-bg" id="rainbow-glow"></div>
+    <div id="p1-content" class="page-content active">
+        <div class="p1-left-panel">
             <div class="canvas-container">
                 <canvas id="textPressureCanvas"></canvas>
             </div>
-            <p>Drag the stars and clouds around with your mouse!</p>
-            <button class="rainbow-btn start-btn" id="start-button">Start!</button>
+            <p class="p1-subtitle split-target" data-text="try to touch the title with your mouse"></p>
+            <button class="rainbow-btn start-btn cascade-item" id="start-button">Start!</button>
+        </div>
+        <div class="p1-right-panel cascade-item">
+            <video src="video.mp4" class="blend-media" autoplay loop muted playsinline></video>
         </div>
     </div>
 
-    <div id="page-2" class="page">
-        <div id="p2-star-layer" style="position:absolute; width:100%; height:100%; top:0; left:0; pointer-events:none; z-index:55;"></div>
-        
+    <div id="p2-content" class="page-content">
+        <div id="p2-star-layer"></div>
         <div class="board-container">
-            <h2 style="margin-top:0;">Jojo's Star Board</h2>
-            <textarea id="message-input" placeholder="Share a thought, wish, or greeting..."></textarea>
-            <br>
-            <button id="submit-message">Send into Orbit ✨</button>
-        </div>
-        
-        <div class="nav-bottom-left">
-            <button class="rainbow-btn" id="p2-back">Back</button>
-        </div>
-        <div class="nav-bottom-right">
-            <button class="rainbow-btn" id="p2-next">Next</button>
-        </div>
-    </div>
-
-    <div id="page-3" class="page">
-        <div class="book-scene">
-            <button class="book-side-nav" id="book-nav-prev">&lt;</button>
-            <button class="book-side-nav" id="book-nav-next">&gt;</button>
-
-            <div class="book-container" id="magical-book">
-                <div class="book-cover">
-                    <h2>Jojo's magical journey</h2>
-                    <button class="rainbow-btn" id="open-book-btn" style="box-shadow: 0 4px 10px rgba(0,0,0,0.2);">Open Book 📖</button>
+            <h2 class="split-target" data-text="Jojo's Star Board"></h2>
+            <textarea id="message-input" class="cascade-item" placeholder="Share a thought, wish, or greeting..."></textarea>
+            
+            <div class="board-actions">
+                <div class="action-button-block">
+                    <button id="submit-private" class="board-submit-btn btn-private cascade-item">Send to your sky</button>
+                    <div class="button-subheading split-target" data-text="only you and Jojo can see this message"></div>
                 </div>
-                <div class="book-inside-left">
-                    <div class="video-intro">clicking this video to see what is Jojo's last term like!</div>
-                    <video controls preload="auto">
-                        <source src="g10总结视频.mp4" type="video/mp4">
-                        Your browser does not support the video tag or path.
-                    </video>
-                </div>
-                <div class="book-inside-right">
-                    <h3>My Memories</h3>
-                    <p style="opacity:1; color:#eee;">Welcome to my memory gallery. Flip through my journey pages, thoughts, and school moments!</p>
+                <div class="action-button-block">
+                    <button id="submit-public" class="board-submit-btn btn-public cascade-item">Send to the orbit</button>
+                    <div class="button-subheading split-target" data-text="all can see this message"></div>
                 </div>
             </div>
         </div>
-
+        
         <div class="nav-bottom-left">
-            <button class="rainbow-btn" id="p3-back">Back</button>
+            <button class="rainbow-btn cascade-item" id="p2-back">Back</button>
+        </div>
+        <div class="nav-bottom-right">
+            <button class="rainbow-btn cascade-item" id="p2-next">Next</button>
+        </div>
+    </div>
+
+    <div id="page-3" class="page-content" style="z-index: 20; background:black;">
+        <div class="dome-scene" id="dome-scene">
+            <div class="dome-wrapper" id="dome-wrapper"></div>
+        </div>
+        <div class="nav-bottom-left">
+            <button class="rainbow-btn cascade-item" id="p3-back">Back</button>
         </div>
     </div>
 
     <script>
-        // --- GLOBAL STATE MOUSE TRACKER ---
+        // 状态跟踪锁
+        let pageVisitedStates = { p1: false, p2: false, p3: false };
+
+        // --- 背景粒子 ---
         let mouse = { x: -1000, y: -1000 };
         window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
-        window.addEventListener('touchmove', (e) => { if(e.touches.length > 0) { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; } });
 
-        // --- FluidGlass EFFECT TARGET TRACKER ---
-        let fluidGlassTarget = null; // Stores ref to active clicked bullet star
-
-        // --- 1. REACT BITS: DOTFIELD BACKGROUND ENGINE ---
         const bgCanvas = document.getElementById('dotFieldCanvas');
         const bgCtx = bgCanvas.getContext('2d');
         let dots = [];
-
-        // Parameter Sync from configuration:
-        const dotRadius = 1.5;
-        const dotSpacing = 16;
-        const bulgeStrength = 103;
-        const glowRadius = 160;
-        const waveAmplitude = 3;
-        const cursorRadius = 400;
-        const cursorForce = 0.1;
-        const gradientFrom = "#06B6D4";
-        const gradientTo = "#B497CF";
-        const glowColor = "rgba(6, 182, 212, 0.25)";
-
+        
         function initDotField() {
-            bgCanvas.width = window.innerWidth;
-            bgCanvas.height = window.innerHeight;
-            dots = [];
-            
-            for (let x = dotSpacing/2; x < bgCanvas.width; x += dotSpacing) {
-                for (let y = dotSpacing/2; y < bgCanvas.height; y += dotSpacing) {
-                    dots.push({
-                        originX: x,
-                        originY: y,
-                        x: x,
-                        y: y,
-                        sparklePhase: Math.random() * Math.PI * 2,
-                        sparkleSpeed: 0.02 + Math.random() * 0.04
-                    });
+            bgCanvas.width = window.innerWidth; bgCanvas.height = window.innerHeight; dots = [];
+            for (let x = 8; x < bgCanvas.width; x += 16) {
+                for (let y = 8; y < bgCanvas.height; y += 16) {
+                    dots.push({ originX: x, originY: y, x: x, y: y, sparklePhase: Math.random() * Math.PI * 2, sparkleSpeed: 0.02 + Math.random() * 0.04 });
                 }
             }
         }
-        window.addEventListener('resize', initDotField);
-        initDotField();
+        window.addEventListener('resize', initDotField); initDotField();
 
-        function drawDotField(time) {
+        function drawCanvasFrames(time) {
             bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
-            
-            // Draw Mouse Glow Layer
-            if (mouse.x > -500) {
-                let glowGrad = bgCtx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, glowRadius);
-                glowGrad.addColorStop(0, glowColor);
-                glowGrad.addColorStop(1, 'transparent');
-                bgCtx.fillStyle = glowGrad;
-                bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
-            }
-
-            // Interpolate dynamic color map
             let linearGrad = bgCtx.createLinearGradient(0, 0, bgCanvas.width, bgCanvas.height);
-            linearGrad.addColorStop(0, gradientFrom);
-            linearGrad.addColorStop(1, gradientTo);
+            linearGrad.addColorStop(0, "#06B6D4"); linearGrad.addColorStop(1, "#B497CF");
             bgCtx.fillStyle = linearGrad;
 
             dots.forEach(dot => {
-                // Wave distortion logic
-                let waveX = Math.sin(time * 0.002 + dot.originY * 0.01) * waveAmplitude;
-                let waveY = Math.cos(time * 0.002 + dot.originX * 0.01) * waveAmplitude;
-                let targetX = dot.originX + waveX;
-                let targetY = dot.originY + waveY;
+                let waveX = Math.sin(time * 0.002 + dot.originY * 0.01) * 3;
+                let waveY = Math.cos(time * 0.002 + dot.originX * 0.01) * 3;
+                let targetX = dot.originX + waveX; let targetY = dot.originY + waveY;
 
-                // Mouse Force Interaction (Bulge Only mechanics)
-                let dx = targetX - mouse.x;
-                let dy = targetY - mouse.y;
+                let dx = targetX - mouse.x; let dy = targetY - mouse.y;
                 let dist = Math.sqrt(dx*dx + dy*dy);
-
-                if (dist < cursorRadius) {
-                    let force = (cursorRadius - dist) / cursorRadius;
-                    // Apply expansion bulge away from mouse target vector
-                    let push = force * bulgeStrength * cursorForce;
+                
+                if (dist < 350) {
+                    let push = ((350 - dist) / 350) * 22;
                     let angle = Math.atan2(dy, dx);
-                    targetX += Math.cos(angle) * push;
-                    targetY += Math.sin(angle) * push;
+                    targetX += Math.cos(angle) * push; targetY += Math.sin(angle) * push;
                 }
-
-                // FluidGlass Lens Interaction simulation (Pixel Refraction distortion grid mapping)
-                if (fluidGlassTarget) {
-                    let glassX = fluidGlassTarget.offsetLeft + fluidGlassTarget.offsetWidth / 2;
-                    let glassY = fluidGlassTarget.offsetTop + fluidGlassTarget.offsetHeight / 2;
-                    let gDx = targetX - glassX;
-                    let gDy = targetY - glassY;
-                    let gDist = Math.sqrt(gDx*gDx + gDy*gDy);
-                    const lensRadius = 130; // Scale 0.25 map bounding box radius
-
-                    if (gDist < lensRadius) {
-                        // Apply custom index of refraction (ior: 1.15) vector lens bending formula
-                        let progress = gDist / lensRadius;
-                        let refract = Math.sin(progress * Math.PI / 2) * 22 * 1.15;
-                        let gAngle = Math.atan2(gDy, gDx);
-                        
-                        // Chromatic Aberration 0.05 color split offset simulation layer
-                        bgCtx.fillStyle = "rgba(255, 50, 50, 0.8)";
-                        bgCtx.fillRect(targetX + Math.cos(gAngle)*refract*1.05, targetY + Math.sin(gAngle)*refract*1.05, dotRadius, dotRadius);
-                        bgCtx.fillStyle = "rgba(50, 255, 255, 0.8)";
-                        bgCtx.fillRect(targetX + Math.cos(gAngle)*refract*0.95, targetY + Math.sin(gAngle)*refract*0.95, dotRadius, dotRadius);
-                        return; // Bypass native drawing loop for glass pixel aberration
-                    }
-                }
-
-                // Sparkle cycle phase step
                 dot.sparklePhase += dot.sparkleSpeed;
-                let currentRadius = dotRadius + Math.sin(dot.sparklePhase) * 0.6;
-                if(currentRadius < 0.5) currentRadius = 0.5;
-
+                let currentRadius = 1.5 + Math.sin(dot.sparklePhase) * 0.6;
                 bgCtx.fillRect(targetX - currentRadius/2, targetY - currentRadius/2, currentRadius, currentRadius);
             });
-
-            // Reset fillStyle mapping back to uniform gradient
-            bgCtx.fillStyle = linearGrad;
-            requestAnimationFrame(drawDotField);
+            requestAnimationFrame(drawCanvasFrames);
         }
-        requestAnimationFrame(drawDotField);
+        requestAnimationFrame(drawCanvasFrames);
 
+        // --- 动画分配引擎 ---
+        function triggerPageCascadeAnimation(pageId, pageContainer) {
+            if (pageVisitedStates[pageId]) {
+                pageContainer.classList.add('no-anim');
+                return;
+            }
+            pageVisitedStates[pageId] = true;
+            pageContainer.classList.remove('no-anim');
 
-        // --- 2. TEXT PRESSURE ENGINE ON CANVAS (UPDATED TO ARCHIVO BLACK) ---
+            const splitTargets = pageContainer.querySelectorAll('.split-target');
+            splitTargets.forEach(target => {
+                if(!target.hasAttribute('data-compiled')) {
+                    const text = target.getAttribute('data-text');
+                    target.innerHTML = '';
+                    const words = text.split(' ');
+                    words.forEach((wordStr, wIdx) => {
+                        const wordSpan = document.createElement('span');
+                        wordSpan.className = 'split-word';
+                        wordStr.split('').forEach(charStr => {
+                            const charSpan = document.createElement('span');
+                            charSpan.className = 'split-char';
+                            charSpan.textContent = charStr;
+                            wordSpan.appendChild(charSpan);
+                        });
+                        target.appendChild(wordSpan);
+                        if (wIdx < words.length - 1) target.appendChild(document.createTextNode(' '));
+                    });
+                    target.setAttribute('data-compiled', 'true');
+                }
+            });
+
+            let sequenceList = [];
+            const allElements = pageContainer.querySelectorAll('.split-char, .cascade-item');
+            allElements.forEach(el => {
+                let currentTop = 0; let ghost = el;
+                while (ghost && ghost !== pageContainer) { currentTop += ghost.offsetTop; ghost = ghost.offsetParent; }
+                sequenceList.push({ element: el, top: currentTop });
+            });
+
+            sequenceList.sort((a, b) => a.top - b.top);
+            sequenceList.forEach((item, index) => {
+                setTimeout(() => { item.element.classList.add('animate-in'); }, index * 45);
+            });
+        }
+
+        // --- P1 修复截断问题的自适应标题系统 ---
         const canvas = document.getElementById('textPressureCanvas');
         const ctx = canvas.getContext('2d');
-        const textStr = "Jojo's rainbow world";
-        const minFontSize = 62; 
+        const textStr = "jojo's rainbow world"; 
         let letters = [];
+        let typingProgress = 0;
 
         function initTextCanvas() {
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = 140;
-            ctx.font = `900 ${minFontSize}px 'Archivo Black', sans-serif`;
+            // 给画布宽度留出充分的余量，保证绝不发生物理截断
+            canvas.width = 560; 
+            canvas.height = 120;
+            ctx.font = `900 42px 'Archivo Black', sans-serif`;
             letters = [];
-            
-            let totalWidth = 0;
-            for(let i=0; i<textStr.length; i++) {
-                totalWidth += ctx.measureText(textStr[i]).width + 2;
-            }
-            let startX = (canvas.width - totalWidth) / 2;
+            let startX = 5;
             
             for(let i=0; i<textStr.length; i++) {
                 let charW = ctx.measureText(textStr[i]).width;
-                letters.push({
-                    char: textStr[i],
-                    baseX: startX + charW / 2,
-                    baseY: 90,
-                    scaleX: 1, scaleY: 1,
-                    targetScaleX: 1, targetScaleY: 1,
-                    vx: 0, vy: 0
-                });
-                startX += charW + 2;
+                letters.push({ char: textStr[i], baseX: startX + charW / 2, baseY: 60, scaleX: 1, scaleY: 1, targetScaleX: 1, targetScaleY: 1, vx: 0, vy: 0 });
+                startX += charW + 1.5;
             }
         }
         window.addEventListener('resize', initTextCanvas);
 
-        const tension = 0.12;
-        const friction = 0.78;
-        const forceRadius = 180;
-
         function animateTextPressure() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.font = `900 ${minFontSize}px 'Archivo Black', sans-serif`;
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-
-            // Calculate precise relative coordinates inside canvas view bounds
+            ctx.font = `900 42px 'Archivo Black', sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
             const rect = canvas.getBoundingClientRect();
-            let cMouseX = mouse.x - rect.left;
-            let cMouseY = mouse.y - rect.top;
+            let cMouseX = mouse.x - rect.left, cMouseY = mouse.y - rect.top;
 
-            letters.forEach((l) => {
-                let dx = l.baseX - cMouseX;
-                let dy = l.baseY - cMouseY;
+            if (typingProgress < letters.length) { typingProgress += 0.35; }
+
+            letters.forEach((l, idx) => {
+                if (idx > Math.floor(typingProgress)) return;
+
+                let dx = l.baseX - cMouseX, dy = l.baseY - cMouseY;
                 let dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < 150) {
+                    let p = (150 - dist) / 150; l.targetScaleX = 1 + p * 0.95; l.targetScaleY = 1 - p * 0.45; 
+                } else { l.targetScaleX = 1; l.targetScaleY = 1; }
+                l.vx = (l.vx + (l.targetScaleX - l.scaleX) * 0.12) * 0.78; l.scaleX += l.vx;
+                l.vy = (l.vy + (l.targetScaleY - l.scaleY) * 0.12) * 0.78; l.scaleY += l.vy;
 
-                if (dist < forceRadius) {
-                    let proximity = (forceRadius - dist) / forceRadius; 
-                    l.targetScaleX = 1 + proximity * 0.95; // Stretch max width expansion
-                    l.targetScaleY = 1 - proximity * 0.45; // Fluid height compression squish
-                } else {
-                    l.targetScaleX = 1; l.targetScaleY = 1;
-                }
-
-                l.vx = (l.vx + (l.targetScaleX - l.scaleX) * tension) * friction;
-                l.scaleX += l.vx;
-                l.vy = (l.vy + (l.targetScaleY - l.scaleY) * tension) * friction;
-                l.scaleY += l.vy;
-
-                ctx.save();
-                ctx.translate(l.baseX, l.baseY);
-                ctx.scale(l.scaleX, l.scaleY);
-                
-                ctx.fillStyle = "#ffffff";
-                ctx.shadowColor = "rgba(6, 182, 212, 0.6)";
-                ctx.shadowBlur = dist < forceRadius ? 20 : 4;
-                
-                ctx.fillText(l.char, 0, 0);
-                ctx.restore();
+                ctx.save(); ctx.translate(l.baseX, l.baseY); ctx.scale(l.scaleX, l.scaleY);
+                ctx.fillStyle = "#ffffff"; ctx.fillText(l.char, 0, 0); ctx.restore();
             });
             requestAnimationFrame(animateTextPressure);
         }
 
-        document.fonts.ready.then(() => {
-            initTextCanvas();
-            animateTextPressure();
+        document.fonts.ready.then(() => { 
+            initTextCanvas(); animateTextPressure(); 
+            triggerPageCascadeAnimation('p1', document.getElementById('p1-content'));
         });
 
-
-        // --- 3. MAGICAL BOOK INTEGRATIONS ---
-        const book = document.getElementById('magical-book');
-        const openBookBtn = document.getElementById('open-book-btn');
-        const prevBtn = document.getElementById('book-nav-prev');
-        const nextBtn = document.getElementById('book-nav-next');
-        let isAnimating = false;
-
-        book.addEventListener('mouseenter', () => {
-            if (!book.classList.contains('open') && !isAnimating) {
-                isAnimating = true;
-                book.classList.add('spring-rotate-animation');
-                
-                setTimeout(() => {
-                    book.classList.remove('spring-rotate-animation');
-                    isAnimating = false;
-                }, 2400);
-            }
-        });
-
-        openBookBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if(!isAnimating) {
-                book.classList.add('open');
-                prevBtn.style.display = 'flex';
-                nextBtn.style.display = 'flex';
-            }
-        });
-
-        prevBtn.addEventListener('click', (e) => { e.stopPropagation(); document.getElementById('p3-back').click(); });
-        nextBtn.addEventListener('click', (e) => { e.stopPropagation(); book.classList.remove('open'); hideBookNavs(); });
-
-        function hideBookNavs() { prevBtn.style.display = 'none'; nextBtn.style.display = 'none'; }
-
-        // --- ROUTING PAGE LAYOUT SWITCHER ---
-        const page1 = document.getElementById('page-1');
-        const page2 = document.getElementById('page-2');
-        const page3 = document.getElementById('page-3');
-        const rainbowGlow = document.getElementById('rainbow-glow');
-        const rainbowTransition = document.getElementById('rainbow-transition');
-
-        function triggerRainbowTransition(fromPage, toPage, direction, finishCallback) {
-            const animationClass = direction === 'forward' ? 'swipe-forward-animation' : 'swipe-backward-animation';
-            rainbowTransition.classList.add(animationClass);
-            
-            setTimeout(() => {
-                fromPage.classList.remove('active');
-                toPage.classList.add('active');
-                if (finishCallback) finishCallback();
-            }, 800);
-
-            setTimeout(() => { rainbowTransition.classList.remove(animationClass); }, 1600);
+        // --- 3D 照片墙 ---
+        const domeWrapper = document.getElementById('dome-wrapper');
+        const domeScene = document.getElementById('dome-scene');
+        for(let i=0; i<24; i++) {
+            const seg = document.createElement('div');
+            seg.className = 'dome-segment'; 
+            seg.innerHTML = `<img src="m${i+1}.jpg" alt="Memory #${i+1}">`;
+            seg.style.transform = `rotateY(${(360/24)*i}deg) translateZ(550px)`;
+            domeWrapper.appendChild(seg);
         }
+        let isDragging = false, startX, startY, rotY = 0, rotX = 0, tRotY = 0, tRotX = 0;
+        domeScene.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX; startY = e.clientY; });
+        window.addEventListener('mouseup', () => { isDragging = false; });
+        window.addEventListener('mousemove', e => {
+            if(!isDragging) return;
+            tRotY += (e.clientX - startX) / 1.8; tRotX -= (e.clientY - startY) / 1.8;
+            if(tRotX > 11) tRotX = 11; if(tRotX < -11) tRotX = -11;
+            startX = e.clientX; startY = e.clientY;
+        });
+        function animDome() {
+            rotY += (tRotY - rotY) * 0.1; rotX += (tRotX - rotX) * 0.1;
+            domeWrapper.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) scale(0.75)`;
+            requestAnimationFrame(animDome);
+        }
+        animDome();
+
+        // --- 路由切换 ---
+        const p1Content = document.getElementById('p1-content');
+        const p2Content = document.getElementById('p2-content');
+        const p3Content = document.getElementById('page-3');
+        const sharedRainbow = document.getElementById('shared-rainbow');
+        const transitionSwipe = document.getElementById('rainbow-transition');
 
         document.getElementById('start-button').addEventListener('click', () => {
-            rainbowGlow.classList.add('zoom-rainbow');
-            setTimeout(() => { page1.classList.remove('active'); page2.classList.add('active'); }, 1000);
+            p1Content.classList.remove('active'); sharedRainbow.className = 'state-p2';
+            setTimeout(() => { p2Content.classList.add('active'); triggerPageCascadeAnimation('p2', p2Content); }, 600);
         });
 
         document.getElementById('p2-back').addEventListener('click', () => {
-            page2.classList.remove('active'); page1.classList.add('active');
-            rainbowGlow.classList.remove('zoom-rainbow');
+            p2Content.classList.remove('active'); sharedRainbow.className = 'state-p1';
+            setTimeout(() => { p1Content.classList.add('active'); triggerPageCascadeAnimation('p1', p1Content); }, 600);
         });
 
-        document.getElementById('p2-next').addEventListener('click', () => { triggerRainbowTransition(page2, page3, 'forward'); });
+        document.getElementById('p2-next').addEventListener('click', () => {
+            transitionSwipe.classList.add('swipe-forward');
+            setTimeout(() => { p2Content.classList.remove('active'); sharedRainbow.style.display = 'none'; p3Content.classList.add('active'); }, 800);
+            setTimeout(() => { transitionSwipe.classList.remove('swipe-forward'); triggerPageCascadeAnimation('p3', p3Content); }, 1600);
+        });
+
         document.getElementById('p3-back').addEventListener('click', () => {
-            triggerRainbowTransition(page3, page2, 'backward', () => { book.classList.remove('open'); hideBookNavs(); });
+            transitionSwipe.classList.add('swipe-backward');
+            setTimeout(() => { p3Content.classList.remove('active'); sharedRainbow.style.display = 'block'; p2Content.ctx ? null : p2Content.classList.add('active'); }, 800);
+            setTimeout(() => { transitionSwipe.classList.remove('swipe-backward'); triggerPageCascadeAnimation('p2', p2Content); }, 1600);
         });
 
-        // --- DRAG CONTROLLER SYSTEM FOR MESSAGES ---
+        // --- 拖拽系统 ---
         function dragElement(elmnt) {
-            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-            elmnt.onmousedown = dragMouseDown;
-            elmnt.ontouchstart = dragMouseDown;
-
-            function dragMouseDown(e) {
-                e = e || window.event;
-                if (e.type === 'touchstart') {
-                    pos3 = e.touches[0].clientX;
-                    pos4 = e.touches[0].clientY;
-                    document.ontouchend = closeDragElement;
-                    document.ontouchmove = elementDrag;
-                } else {
-                    e.preventDefault();
-                    pos3 = e.clientX;
-                    pos4 = e.clientY;
-                    document.onmouseup = closeDragElement;
-                    document.onmousemove = elementDrag;
-                }
-                elmnt.style.animationPlayState = 'paused';
-            }
-
-            function elementDrag(e) {
-                e = e || window.event;
-                let clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
-                let clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
-                pos1 = pos3 - clientX;
-                pos2 = pos4 - clientY;
-                pos3 = clientX;
-                pos4 = clientY;
-                elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-                elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-            }
-
-            function closeDragElement() {
-                document.onmouseup = null; document.onmousemove = null;
-                document.ontouchend = null; document.ontouchmove = null;
-                elmnt.style.animationPlayState = 'running';
-            }
+            let p1 = 0, p2 = 0, p3 = 0, p4 = 0;
+            elmnt.onmousedown = (e) => { e.preventDefault(); p3 = e.clientX; p4 = e.clientY; document.onmouseup = closeD; document.onmousemove = moveD; elmnt.style.animationPlayState = 'paused'; };
+            function moveD(e) { p1 = p3 - e.clientX; p2 = p4 - e.clientY; p3 = e.clientX; p4 = e.clientY; elmnt.style.top = (elmnt.offsetTop - p2) + "px"; elmnt.style.left = (elmnt.offsetLeft - p1) + "px"; }
+            function closeD() { document.onmouseup = null; document.onmousemove = null; elmnt.style.animationPlayState = 'running'; }
         }
 
-        // --- PAGE 2 USER STAR MESSAGE HANDLER + FluidGlass INTERACTION LENS TRIGGER ---
-        const submitBtn = document.getElementById('submit-message');
-        const messageInput = document.getElementById('message-input');
-        const p2StarLayer = document.getElementById('p2-star-layer');
+        // --- 弹幕系统 ---
+        const msgInput = document.getElementById('message-input'), p2StarLayer = document.getElementById('p2-star-layer');
+        function launchStar(text, isPrivate) {
+            if (!text) return;
+            const star = document.createElement('div');
+            star.className = isPrivate ? 'flying-star private-star' : 'flying-star';
+            star.innerHTML = (isPrivate ? `🔒 ` : `✨ `) + text;
 
-        submitBtn.addEventListener('click', () => {
-            const text = messageInput.value.trim();
-            if (text === '') return;
+            const boxRect = msgInput.getBoundingClientRect();
+            star.style.left = (boxRect.left + boxRect.width / 2) + 'px';
+            star.style.top = (boxRect.top + boxRect.height / 2) + 'px';
+            star.style.transform = 'translate(-50%, -50%) scale(0.1)';
+            star.style.transition = 'all 1.1s cubic-bezier(0.16, 1, 0.3, 1)'; 
+            
+            p2StarLayer.appendChild(star);
+            const targetLeft = 10 + Math.random() * 65; const targetTop = 10 + Math.random() * 35; 
 
-            const starText = document.createElement('div');
-            starText.classList.add('flying-star');
-            starText.style.pointerEvents = 'auto';
-            starText.innerHTML = `✨ ${text}`;
+            setTimeout(() => {
+                star.style.left = targetLeft + 'vw'; star.style.top = targetTop + 'vh';
+                star.style.transform = 'translate(0, 0) scale(1)';
+            }, 40);
 
-            starText.style.left = (10 + Math.random() * 65) + 'vw';
-            starText.style.top = (15 + Math.random() * 60) + 'vh';
+            setTimeout(() => {
+                star.style.transition = 'none'; 
+                star.style.animation = `orbit ${14 + Math.random() * 14}s linear infinite`; 
+                dragElement(star);
+            }, 1150);
 
-            const durationSpeed = 14 + Math.random() * 14;
-            starText.style.animationDuration = `${durationSpeed}s`;
+            msgInput.value = '';
+        }
 
-            // FluidGlass Activation Trigger Hooks
-            starText.addEventListener('click', (e) => {
-                e.stopPropagation();
-                // Toggle active glass lens focus reference targeting
-                if (fluidGlassTarget === starText) {
-                    fluidGlassTarget = null;
-                } else {
-                    fluidGlassTarget = starText;
-                }
-            });
-
-            p2StarLayer.appendChild(starText);
-            dragElement(starText);
-            messageInput.value = '';
-        });
-
-        // Global background click dismisses active refractive FluidGlass lens modifier focus
-        window.addEventListener('click', () => { fluidGlassTarget = null; });
+        document.getElementById('submit-private').addEventListener('click', () => launchStar(msgInput.value.trim(), true));
+        document.getElementById('submit-public').addEventListener('click', () => launchStar(msgInput.value.trim(), false));
     </script>
 </body>
 </html>
