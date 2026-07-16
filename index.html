@@ -12,7 +12,8 @@
 
     <style>
         body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
+            margin: 0;
+            padding: 0; width: 100%; height: 100%;
             background-color: #000000; color: #ffffff;
             font-family: 'Geist Pixel', monospace, sans-serif;
             overflow: hidden; user-select: none;
@@ -20,41 +21,37 @@
 
         /* 背景画布 */
         #dotFieldCanvas {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
             z-index: 1; pointer-events: none;
         }
 
         /* 页面容器 */
         .page-content {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
             display: flex; width: 100vw; height: 100vh;
             opacity: 0; pointer-events: none;
             transition: opacity 0.6s ease;
             z-index: 15; box-sizing: border-box;
         }
-        .page-content.active { opacity: 1; pointer-events: auto; }
+        .page-content.active { opacity: 1;
+            pointer-events: auto; }
 
-        /* P1 完美左右分栏布局 */
+        /* P1 居中精美布局 */
         #p1-content {
-            flex-direction: row; justify-content: space-between; align-items: center; padding: 0 6% 0 8%;
+            flex-direction: column;
+            justify-content: center; align-items: center; padding: 0;
         }
-        .p1-left-panel {
-            display: flex; flex-direction: column; justify-content: center; align-items: flex-start; 
-            width: 50vw; min-width: 520px; z-index: 20;
-        }
-        .p1-right-panel {
-            width: 36vw; height: 60vh; min-width: 300px; display: flex; justify-content: center; align-items: center; z-index: 20;
-            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px;
-            backdrop-filter: blur(5px); overflow: hidden;
-        }
-        /* 媒体融合容器 */
-        .blend-media {
-            width: 100%; height: 100%; object-fit: cover;
-            mix-blend-mode: color-burn; opacity: 0.85;
+        .p1-center-panel {
+            display: flex;
+            flex-direction: column; justify-content: center; align-items: center; 
+            width: 90vw; max-width: 600px; z-index: 20; text-align: center;
         }
 
         /* P2 留言板居中 */
-        #p2-content { flex-direction: column; justify-content: center; align-items: center; }
+        #p2-content { flex-direction: column;
+            justify-content: center; align-items: center; }
 
         /* 共有无缝自适应彩虹 */
         #shared-rainbow {
@@ -71,11 +68,13 @@
         }
         
         #shared-rainbow.state-p1 {
-            width: 700px; height: 350px; border-radius: 350px 350px 0 0; filter: blur(25px);
+            width: 700px;
+            height: 350px; border-radius: 350px 350px 0 0; filter: blur(25px);
         }
 
         #shared-rainbow.state-p2 {
-            width: 1800px; height: 900px; border-radius: 900px 900px 0 0; filter: blur(12px);
+            width: 1800px;
+            height: 900px; border-radius: 900px 900px 0 0; filter: blur(12px);
             background: radial-gradient(circle at 50% 100%, 
                 rgba(255, 0, 0, 0.25) 0%, rgba(255, 127, 0, 0.25) 15%, 
                 rgba(255, 255, 0, 0.25) 30%, rgba(0, 255, 0, 0.25) 45%, 
@@ -84,21 +83,27 @@
         }
 
         /* --- 阶梯式流式加载效果 --- */
-        .split-word { display: inline-block; white-space: nowrap; }
+        .split-word { display: inline-block;
+            white-space: nowrap; }
         .split-char, .cascade-item {
-            display: inline-block; opacity: 0; transform: translateY(40px);
+            display: inline-block;
+            opacity: 0; transform: translateY(40px);
             transition: opacity 1.25s cubic-bezier(0.215, 0.610, 0.355, 1), 
                         transform 1.25s cubic-bezier(0.215, 0.610, 0.355, 1);
         }
-        .split-char.animate-in, .cascade-item.animate-in { opacity: 1; transform: translateY(0); }
+        .split-char.animate-in, .cascade-item.animate-in { opacity: 1; transform: translateY(0);
+        }
 
         /* 状态锁：二次加载直接呈现 */
         .no-anim .split-char, .no-anim .cascade-item {
-            opacity: 1 !important; transform: translateY(0) !important; transition: none !important;
+            opacity: 1 !important;
+            transform: translateY(0) !important; transition: none !important;
         }
 
-        textarea.cascade-item, div.cascade-item { display: block; }
-        button.cascade-item { display: inline-block; }
+        textarea.cascade-item, div.cascade-item { display: block;
+        }
+        button.cascade-item { display: inline-block;
+        }
 
         /* --- 炫彩按钮 --- */
         .rainbow-btn {
@@ -111,93 +116,211 @@
             transition: transform 0.2s ease, filter 0.3s ease, box-shadow 0.2s ease;
             z-index: 100; position: relative;
         }
-        .rainbow-btn:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(255,255,255,0.6); }
-        .rainbow-btn:active { filter: grayscale(100%) brightness(0.4) saturate(0); transform: scale(0.96); }
+        .rainbow-btn:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(255,255,255,0.6);
+        }
+        .rainbow-btn:active { filter: grayscale(100%) brightness(0.4) saturate(0); transform: scale(0.96);
+        }
 
-        /* 强制画布高度和宽度，防止右侧挤压 */
-        .canvas-container { position: relative; width: 100%; height: 120px; display: flex; justify-content: flex-start; align-items: center; }
-        .p1-subtitle { font-size: 1.3rem; margin-top: 15px; color: #cccccc; text-align: left; }
-        .start-btn { margin-top: 30px; }
+        /* 强制画布高度和宽度，高度从 120px 调升至 150px 以适应更大的字体并防止截断 */
+        .canvas-container { position: relative;
+            width: 100%; height: 150px; display: flex; justify-content: center; align-items: center;
+        }
+        .p1-subtitle { font-size: 1.3rem; margin-top: 15px; color: #cccccc; text-align: center;
+        }
+        .start-btn { margin-top: 30px;
+        }
 
         /* P2 留言板 */
-        #p2-star-layer { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; z-index: 55; }
-        .board-container { width: 90%; max-width: 580px; text-align: center; z-index: 60; }
-        .board-container h2 { font-size: 2.2rem; margin-top: 0; margin-bottom: 25px; }
+        #p2-star-layer { position: absolute;
+            width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; z-index: 55;
+        }
+        .board-container { width: 90%; max-width: 580px; text-align: center; z-index: 60;
+        }
+        .board-container h2 { font-size: 2.2rem; margin-top: 0; margin-bottom: 25px;
+        }
         .board-container textarea {
             font-family: 'Geist Pixel', monospace, sans-serif;
             width: 100%; height: 120px; background: rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255,255,255,0.3); border-radius: 12px;
-            color: white; padding: 14px; font-size: 1.2rem; resize: none; margin-bottom: 25px;
+            color: white; padding: 14px;
+            font-size: 1.2rem; resize: none; margin-bottom: 25px;
             backdrop-filter: blur(10px);
         }
-        .board-container textarea:focus { outline: none; border-color: #ffffff; }
-        .board-actions { display: flex; gap: 20px; justify-content: center; align-items: stretch; }
-        .action-button-block { flex: 1; display: flex; flex-direction: column; align-items: center; }
+        .board-container textarea:focus { outline: none;
+            border-color: #ffffff; }
+        .board-actions { display: flex; gap: 20px; justify-content: center; align-items: stretch;
+        }
+        .action-button-block { flex: 1; display: flex; flex-direction: column; align-items: center;
+        }
         
+        /* 第二页提交按钮重构：
+           未按下时：浅色、高透明度、带模糊、无缝融合。
+           按下时：利用伪元素从点击坐标点如颜料般像圆环一样扩散至填满按钮，饱和度增高、变亮变深。
+        */
         .board-submit-btn {
             font-family: 'Geist Pixel', monospace, sans-serif;
             width: 100%; padding: 12px 10px; border: none; border-radius: 20px;
-            font-size: 1.1rem; font-weight: bold; cursor: pointer; color: white;
-            transition: transform 0.2s, filter 0.3s;
+            font-size: 1.1rem; font-weight: bold; cursor: pointer;
+            position: relative; overflow: hidden;
+            z-index: 1;
+            /* 初始化常态：浅色、高透明融合度 */
+            backdrop-filter: blur(5px);
+            transition: transform 0.2s, color 0.4s;
         }
-        .btn-private { background: #a3e635; color: black; } 
-        .btn-private:active { filter: grayscale(100%) brightness(0.4); transform: scale(0.97); }
-        .btn-public { background: #06b6d4; color: black; } 
-        .btn-public:active { filter: grayscale(100%) brightness(0.4); transform: scale(0.97); }
         
-        .button-subheading { font-size: 0.85rem; color: #eeeeee; margin-top: 10px; line-height: 1.3; }
+        /* 绿色按钮 (Send to your sky) 常态 */
+        .btn-private {
+            background: rgba(163, 230, 53, 0.15);
+            /* 极低饱和度浅色 */
+            color: rgba(163, 230, 53, 0.7);
+            /* 融入背景的浅文字 */
+            border: 1px solid rgba(163, 230, 53, 0.3);
+        }
+        /* 蓝色按钮 (Send to the orbit) 常态 */
+        .btn-public {
+            background: rgba(6, 182, 212, 0.15);
+            /* 极低饱和度浅色 */
+            color: rgba(6, 182, 212, 0.7);
+            /* 融入背景的浅文字 */
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
 
-        .nav-bottom-left { position: absolute; bottom: 30px; left: 30px; z-index: 100; }
-        .nav-bottom-right { position: absolute; bottom: 30px; right: 30px; z-index: 100; }
+        /* 颜料落纸填满特效的核心伪元素 */
+        .board-submit-btn::after {
+            content: '';
+            position: absolute;
+            left: var(--ripple-x, 50%);
+            top: var(--ripple-y, 50%);
+            width: 20px;
+            height: 20px;
+            margin-left: -10px;
+            margin-top: -10px;
+            border-radius: 50%;
+            transform: scale(0);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* 颜料落笔注入状态时的扩散动画 */
+        .board-submit-btn.btn-active-ink::after {
+            animation: inkSpread 0.45s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+        }
+
+        /* 绿色按钮按下时的深色高饱和度颜料 */
+        .btn-private::after {
+            background: #84cc16;
+            /* 饱和度明显提高、颜色变深的绿色 */
+        }
+        /* 蓝色按钮按下时的深色高饱和度颜料 */
+        .btn-public::after {
+            background: #0891b2;
+            /* 饱和度明显提高、颜色变深的蓝色 */
+        }
+
+        /* 点击过渡激活时，文字颜色变深变清晰 */
+        .board-submit-btn.btn-active-ink {
+            color: #000000;
+            border-color: transparent;
+        }
+
+        /* 点击时的轻微物理凹陷 */
+        .board-submit-btn:active {
+            transform: scale(0.97);
+        }
+
+        @keyframes inkSpread {
+            0% {
+                transform: scale(0);
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 0.9;
+            }
+            100% {
+                transform: scale(35);
+                /* 放大到完全覆盖整个按钮 */
+                opacity: 1;
+            }
+        }
+        
+        .button-subheading { font-size: 0.85rem;
+            color: #eeeeee; margin-top: 10px; line-height: 1.3; }
+
+        .nav-bottom-left { position: absolute; bottom: 30px;
+            left: 30px; z-index: 100; }
+        .nav-bottom-right { position: absolute; bottom: 30px; right: 30px;
+            z-index: 100; }
 
         /* 弹幕星星 */
         .flying-star {
             font-family: 'Geist Pixel', monospace, sans-serif;
             position: absolute; white-space: nowrap; padding: 10px 22px;
             font-size: 1.1rem; cursor: pointer; z-index: 60; color: #ffffff;
-            background: rgba(255, 255, 255, 0.1); border-radius: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
             border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(5px);
         }
-        .private-star { border-color: rgba(163, 230, 53, 0.5); text-shadow: 0 0 8px rgba(163, 230, 53, 0.8); }
+        .private-star { border-color: rgba(163, 230, 53, 0.5);
+            text-shadow: 0 0 8px rgba(163, 230, 53, 0.8); }
         
         /* 刷屏特效 */
         #rainbow-transition {
-            position: fixed; top: 0; width: 150%; height: 100%;
+            position: fixed;
+            top: 0; width: 150%; height: 100%;
             background: linear-gradient(90deg, rgba(255,0,0,1) 0%, rgba(255,127,0,1) 16%, rgba(255,255,0,1) 33%, rgba(0,255,0,1) 50%, rgba(0,0,255,1) 66%, rgba(75,0,130,1) 83%, rgba(148,0,211,1) 100%);
             z-index: 9999; pointer-events: none; display: none;
         }
-        .swipe-forward { display: block !important; animation: swipeFor 1.6s cubic-bezier(0.42, 0, 0.58, 1) forwards; }
-        @keyframes swipeFor { 0% { left: 100%; transform: skewX(-15deg); } 50% { left: -25%; } 100% { left: -150%; transform: skewX(-15deg); } }
-        .swipe-backward { display: block !important; animation: swipeBack 1.6s cubic-bezier(0.42, 0, 0.58, 1) forwards; }
-        @keyframes swipeBack { 0% { left: -150%; transform: skewX(15deg); } 50% { left: -25%; } 100% { left: 100%; transform: skewX(15deg); } }
+        .swipe-forward { display: block !important;
+            animation: swipeFor 1.6s cubic-bezier(0.42, 0, 0.58, 1) forwards; }
+        @keyframes swipeFor { 0% { left: 100%;
+            transform: skewX(-15deg); } 50% { left: -25%; } 100% { left: -150%; transform: skewX(-15deg);
+            } }
+        .swipe-backward { display: block !important;
+            animation: swipeBack 1.6s cubic-bezier(0.42, 0, 0.58, 1) forwards; }
+        @keyframes swipeBack { 0% { left: -150%;
+            transform: skewX(15deg); } 50% { left: -25%; } 100% { left: 100%; transform: skewX(15deg);
+            } }
 
         /* P3 3D 照片墙空间 */
-        #page-3 { background: #000; display: none; }
-        #page-3.active { display: flex; }
-        .dome-scene { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; transform-style: preserve-3d; cursor: grab; perspective: 1200px;}
-        .dome-wrapper { position: relative; width: 0; height: 0; transform-style: preserve-3d; }
+        #page-3 { background: #000;
+            display: none; }
+        #page-3.active { display: flex;
+            }
+        .dome-scene { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;
+            transform-style: preserve-3d; cursor: grab; perspective: 1200px;}
+        .dome-wrapper { position: relative; width: 0;
+            height: 0; transform-style: preserve-3d; }
         
         .dome-segment {
-            position: absolute; left: -110px; top: -140px; width: 220px; height: 280px;
+            position: absolute;
+            left: -110px; top: -140px; width: 220px; height: 280px;
             background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px;
-            overflow: hidden; filter: grayscale(100%); transition: all 0.4s ease; backface-visibility: hidden;
+            overflow: hidden; filter: grayscale(100%);
+            transition: all 0.4s ease; backface-visibility: hidden;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .dome-segment img {
-            width: 100%; height: 100%; object-fit: cover; pointer-events: none;
+            width: 100%;
+            height: 100%; object-fit: cover; pointer-events: none;
         }
         .dome-segment:hover { 
-            filter: grayscale(0%); border-color: rgba(255,255,255,0.7); 
+            filter: grayscale(0%);
+            border-color: rgba(255,255,255,0.7); 
             box-shadow: 0 0 25px rgba(255,255,255,0.2); transform: scale(1.05);
         }
 
         @keyframes rainbowShift { 0% { background-position: 0% 50% } 50% { background-position: 100% 50% } 100% { background-position: 0% 50% } }
         @keyframes orbit {
-            0% { transform: translate(0, 0) rotate(0deg); }
-            25% { transform: translate(150px, -60px) rotate(2deg); }
-            50% { transform: translate(70px, 120px) rotate(-2deg); }
-            75% { transform: translate(-120px, 50px) rotate(1deg); }
-            100% { transform: translate(0, 0) rotate(0deg); }
+            0% { transform: translate(0, 0) rotate(0deg);
+            }
+            25% { transform: translate(150px, -60px) rotate(2deg);
+            }
+            50% { transform: translate(70px, 120px) rotate(-2deg);
+            }
+            75% { transform: translate(-120px, 50px) rotate(1deg);
+            }
+            100% { transform: translate(0, 0) rotate(0deg);
+            }
         }
     </style>
 </head>
@@ -208,15 +331,13 @@
     <div id="shared-rainbow" class="state-p1"></div>
 
     <div id="p1-content" class="page-content active">
-        <div class="p1-left-panel">
+        <div class="p1-center-panel">
             <div class="canvas-container">
                 <canvas id="textPressureCanvas"></canvas>
             </div>
-            <p class="p1-subtitle split-target" data-text="try to touch the title with your mouse"></p>
+            <p class="p1-subtitle 
+            split-target" data-text="try to touch the title with your mouse"></p>
             <button class="rainbow-btn start-btn cascade-item" id="start-button">Start!</button>
-        </div>
-        <div class="p1-right-panel cascade-item">
-            <video src="video.mp4" class="blend-media" autoplay loop muted playsinline></video>
         </div>
     </div>
 
@@ -225,17 +346,20 @@
         <div class="board-container">
             <h2 class="split-target" data-text="Jojo's Star Board"></h2>
             <textarea id="message-input" class="cascade-item" placeholder="Share a thought, wish, or greeting..."></textarea>
+    
             
             <div class="board-actions">
                 <div class="action-button-block">
                     <button id="submit-private" class="board-submit-btn btn-private cascade-item">Send to your sky</button>
                     <div class="button-subheading split-target" data-text="only you and Jojo can see this message"></div>
-                </div>
+     
+               </div>
                 <div class="action-button-block">
                     <button id="submit-public" class="board-submit-btn btn-public cascade-item">Send to the orbit</button>
                     <div class="button-subheading split-target" data-text="all can see this message"></div>
                 </div>
-            </div>
+  
+           </div>
         </div>
         
         <div class="nav-bottom-left">
@@ -246,7 +370,8 @@
         </div>
     </div>
 
-    <div id="page-3" class="page-content" style="z-index: 20; background:black;">
+    <div id="page-3" 
+    class="page-content" style="z-index: 20; background:black;">
         <div class="dome-scene" id="dome-scene">
             <div class="dome-wrapper" id="dome-wrapper"></div>
         </div>
@@ -255,9 +380,38 @@
         </div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
     <script>
+        // --- FIREBASE CONFIGURATION ---
+        // 请在此处填入你自己的 Firebase 项目配置：
+      const firebaseConfig = {
+            apiKey: "AIzaSyDnb6BkDv0u9FOYI3Jfw3uVeOjSwAw2pl8",
+            authDomain: "jojos-rainbow-world.firebaseapp.com",
+            databaseURL: "https://jojos-rainbow-world-default-rtdb.firebaseio.com",
+            projectId: "jojos-rainbow-world",
+            storageBucket: "jojos-rainbow-world.firebasestorage.app",
+            messagingSenderId: "364505769755",
+            appId: "1:364505769755:web:a253108f71963566a328be"
+        };
+
+        // 初始化 Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // 辅助函数：获取当天的日期标识键 YYYY-MM-DD（基于用户本地时间）
+        function getTodayDateKey() {
+            const d = new Date();
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
         // 状态跟踪锁
-        let pageVisitedStates = { p1: false, p2: false, p3: false };
+        let pageVisitedStates = { p1: false, p2: false, 
+        p3: false };
 
         // --- 背景粒子 ---
         let mouse = { x: -1000, y: -1000 };
@@ -268,6 +422,7 @@
         let dots = [];
         
         function initDotField() {
+  
             bgCanvas.width = window.innerWidth; bgCanvas.height = window.innerHeight; dots = [];
             for (let x = 8; x < bgCanvas.width; x += 16) {
                 for (let y = 8; y < bgCanvas.height; y += 16) {
@@ -275,35 +430,37 @@
                 }
             }
         }
-        window.addEventListener('resize', initDotField); initDotField();
+        window.addEventListener('resize', initDotField);
+        initDotField();
 
         function drawCanvasFrames(time) {
             bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
             let linearGrad = bgCtx.createLinearGradient(0, 0, bgCanvas.width, bgCanvas.height);
             linearGrad.addColorStop(0, "#06B6D4"); linearGrad.addColorStop(1, "#B497CF");
             bgCtx.fillStyle = linearGrad;
-
             dots.forEach(dot => {
                 let waveX = Math.sin(time * 0.002 + dot.originY * 0.01) * 3;
                 let waveY = Math.cos(time * 0.002 + dot.originX * 0.01) * 3;
                 let targetX = dot.originX + waveX; let targetY = dot.originY + waveY;
 
-                let dx = targetX - mouse.x; let dy = targetY - mouse.y;
+                let 
+                dx = targetX - mouse.x; let dy = targetY - mouse.y;
                 let dist = Math.sqrt(dx*dx + dy*dy);
                 
                 if (dist < 350) {
                     let push = ((350 - dist) / 350) * 22;
+    
                     let angle = Math.atan2(dy, dx);
                     targetX += Math.cos(angle) * push; targetY += Math.sin(angle) * push;
                 }
                 dot.sparklePhase += dot.sparkleSpeed;
-                let currentRadius = 1.5 + Math.sin(dot.sparklePhase) * 0.6;
+                let 
+                currentRadius = 1.5 + Math.sin(dot.sparklePhase) * 0.6;
                 bgCtx.fillRect(targetX - currentRadius/2, targetY - currentRadius/2, currentRadius, currentRadius);
             });
             requestAnimationFrame(drawCanvasFrames);
         }
         requestAnimationFrame(drawCanvasFrames);
-
         // --- 动画分配引擎 ---
         function triggerPageCascadeAnimation(pageId, pageContainer) {
             if (pageVisitedStates[pageId]) {
@@ -312,24 +469,27 @@
             }
             pageVisitedStates[pageId] = true;
             pageContainer.classList.remove('no-anim');
-
             const splitTargets = pageContainer.querySelectorAll('.split-target');
             splitTargets.forEach(target => {
                 if(!target.hasAttribute('data-compiled')) {
                     const text = target.getAttribute('data-text');
                     target.innerHTML = '';
                     const words = text.split(' ');
+        
                     words.forEach((wordStr, wIdx) => {
                         const wordSpan = document.createElement('span');
                         wordSpan.className = 'split-word';
                         wordStr.split('').forEach(charStr => {
+      
                             const charSpan = document.createElement('span');
                             charSpan.className = 'split-char';
                             charSpan.textContent = charStr;
+               
                             wordSpan.appendChild(charSpan);
                         });
                         target.appendChild(wordSpan);
                         if (wIdx < words.length - 1) target.appendChild(document.createTextNode(' '));
+        
                     });
                     target.setAttribute('data-compiled', 'true');
                 }
@@ -342,53 +502,58 @@
                 while (ghost && ghost !== pageContainer) { currentTop += ghost.offsetTop; ghost = ghost.offsetParent; }
                 sequenceList.push({ element: el, top: currentTop });
             });
-
             sequenceList.sort((a, b) => a.top - b.top);
             sequenceList.forEach((item, index) => {
                 setTimeout(() => { item.element.classList.add('animate-in'); }, index * 45);
             });
         }
 
-        // --- P1 修复截断问题的自适应标题系统 ---
+        // --- P1 标题系统（已实现完美居中 + 字体放大） ---
         const canvas = document.getElementById('textPressureCanvas');
         const ctx = canvas.getContext('2d');
         const textStr = "jojo's rainbow world"; 
         let letters = [];
         let typingProgress = 0;
-
         function initTextCanvas() {
-            // 给画布宽度留出充分的余量，保证绝不发生物理截断
-            canvas.width = 560; 
-            canvas.height = 120;
-            ctx.font = `900 42px 'Archivo Black', sans-serif`;
-            letters = [];
-            let startX = 5;
+            canvas.width = 560;
+            canvas.height = 150;
+            ctx.font = `900 50px 'Archivo Black', sans-serif`;
             
+            let totalWidth = 0;
+            for(let i=0; i<textStr.length; i++) {
+                totalWidth += ctx.measureText(textStr[i]).width + 1.5;
+            }
+            totalWidth -= 1.5;
+            let startX = (canvas.width - totalWidth) / 2;
+            
+            letters = [];
             for(let i=0; i<textStr.length; i++) {
                 let charW = ctx.measureText(textStr[i]).width;
-                letters.push({ char: textStr[i], baseX: startX + charW / 2, baseY: 60, scaleX: 1, scaleY: 1, targetScaleX: 1, targetScaleY: 1, vx: 0, vy: 0 });
+                letters.push({ char: textStr[i], baseX: startX + charW / 2, baseY: 75, scaleX: 1, scaleY: 1, targetScaleX: 1, targetScaleY: 1, vx: 0, vy: 0 });
                 startX += charW + 1.5;
             }
         }
         window.addEventListener('resize', initTextCanvas);
-
         function animateTextPressure() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.font = `900 42px 'Archivo Black', sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+            ctx.font = `900 50px 'Archivo Black', sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
             const rect = canvas.getBoundingClientRect();
             let cMouseX = mouse.x - rect.left, cMouseY = mouse.y - rect.top;
 
-            if (typingProgress < letters.length) { typingProgress += 0.35; }
+            if (typingProgress < letters.length) { typingProgress += 0.35;
+            }
 
             letters.forEach((l, idx) => {
                 if (idx > Math.floor(typingProgress)) return;
 
                 let dx = l.baseX - cMouseX, dy = l.baseY - cMouseY;
                 let dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist < 150) {
+                if (dist 
+                < 150) {
                     let p = (150 - dist) / 150; l.targetScaleX = 1 + p * 0.95; l.targetScaleY = 1 - p * 0.45; 
                 } else { l.targetScaleX = 1; l.targetScaleY = 1; }
                 l.vx = (l.vx + (l.targetScaleX - l.scaleX) * 0.12) * 0.78; l.scaleX += l.vx;
+  
                 l.vy = (l.vy + (l.targetScaleY - l.scaleY) * 0.12) * 0.78; l.scaleY += l.vy;
 
                 ctx.save(); ctx.translate(l.baseX, l.baseY); ctx.scale(l.scaleX, l.scaleY);
@@ -401,7 +566,6 @@
             initTextCanvas(); animateTextPressure(); 
             triggerPageCascadeAnimation('p1', document.getElementById('p1-content'));
         });
-
         // --- 3D 照片墙 ---
         const domeWrapper = document.getElementById('dome-wrapper');
         const domeScene = document.getElementById('dome-scene');
@@ -422,7 +586,8 @@
             startX = e.clientX; startY = e.clientY;
         });
         function animDome() {
-            rotY += (tRotY - rotY) * 0.1; rotX += (tRotX - rotX) * 0.1;
+            rotY += (tRotY - rotY) * 0.1;
+            rotX += (tRotX - rotX) * 0.1;
             domeWrapper.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) scale(0.75)`;
             requestAnimationFrame(animDome);
         }
@@ -434,35 +599,34 @@
         const p3Content = document.getElementById('page-3');
         const sharedRainbow = document.getElementById('shared-rainbow');
         const transitionSwipe = document.getElementById('rainbow-transition');
-
         document.getElementById('start-button').addEventListener('click', () => {
             p1Content.classList.remove('active'); sharedRainbow.className = 'state-p2';
             setTimeout(() => { p2Content.classList.add('active'); triggerPageCascadeAnimation('p2', p2Content); }, 600);
         });
-
         document.getElementById('p2-back').addEventListener('click', () => {
             p2Content.classList.remove('active'); sharedRainbow.className = 'state-p1';
             setTimeout(() => { p1Content.classList.add('active'); triggerPageCascadeAnimation('p1', p1Content); }, 600);
         });
-
         document.getElementById('p2-next').addEventListener('click', () => {
             transitionSwipe.classList.add('swipe-forward');
             setTimeout(() => { p2Content.classList.remove('active'); sharedRainbow.style.display = 'none'; p3Content.classList.add('active'); }, 800);
             setTimeout(() => { transitionSwipe.classList.remove('swipe-forward'); triggerPageCascadeAnimation('p3', p3Content); }, 1600);
         });
-
         document.getElementById('p3-back').addEventListener('click', () => {
             transitionSwipe.classList.add('swipe-backward');
             setTimeout(() => { p3Content.classList.remove('active'); sharedRainbow.style.display = 'block'; p2Content.ctx ? null : p2Content.classList.add('active'); }, 800);
             setTimeout(() => { transitionSwipe.classList.remove('swipe-backward'); triggerPageCascadeAnimation('p2', p2Content); }, 1600);
         });
-
         // --- 拖拽系统 ---
         function dragElement(elmnt) {
             let p1 = 0, p2 = 0, p3 = 0, p4 = 0;
-            elmnt.onmousedown = (e) => { e.preventDefault(); p3 = e.clientX; p4 = e.clientY; document.onmouseup = closeD; document.onmousemove = moveD; elmnt.style.animationPlayState = 'paused'; };
-            function moveD(e) { p1 = p3 - e.clientX; p2 = p4 - e.clientY; p3 = e.clientX; p4 = e.clientY; elmnt.style.top = (elmnt.offsetTop - p2) + "px"; elmnt.style.left = (elmnt.offsetLeft - p1) + "px"; }
-            function closeD() { document.onmouseup = null; document.onmousemove = null; elmnt.style.animationPlayState = 'running'; }
+            elmnt.onmousedown = (e) => { e.preventDefault(); p3 = e.clientX; p4 = e.clientY; document.onmouseup = closeD; document.onmousemove = moveD;
+            elmnt.style.animationPlayState = 'paused'; };
+            function moveD(e) { p1 = p3 - e.clientX; p2 = p4 - e.clientY; p3 = e.clientX;
+                p4 = e.clientY; elmnt.style.top = (elmnt.offsetTop - p2) + "px"; elmnt.style.left = (elmnt.offsetLeft - p1) + "px";
+            }
+            function closeD() { document.onmouseup = null;
+                document.onmousemove = null; elmnt.style.animationPlayState = 'running'; }
         }
 
         // --- 弹幕系统 ---
@@ -480,24 +644,95 @@
             star.style.transition = 'all 1.1s cubic-bezier(0.16, 1, 0.3, 1)'; 
             
             p2StarLayer.appendChild(star);
-            const targetLeft = 10 + Math.random() * 65; const targetTop = 10 + Math.random() * 35; 
-
+            const targetLeft = 10 + Math.random() * 65; const targetTop = 10 + Math.random() * 35;
             setTimeout(() => {
                 star.style.left = targetLeft + 'vw'; star.style.top = targetTop + 'vh';
                 star.style.transform = 'translate(0, 0) scale(1)';
             }, 40);
-
             setTimeout(() => {
                 star.style.transition = 'none'; 
                 star.style.animation = `orbit ${14 + Math.random() * 14}s linear infinite`; 
                 dragElement(star);
             }, 1150);
-
             msgInput.value = '';
         }
 
-        document.getElementById('submit-private').addEventListener('click', () => launchStar(msgInput.value.trim(), true));
-        document.getElementById('submit-public').addEventListener('click', () => launchStar(msgInput.value.trim(), false));
+        // --- FIREBASE 核心逻辑对接 ---
+        // 1. 实时监听今天的公共弹幕
+        const todayKey = getTodayDateKey();
+        const publicMessagesRef = database.ref('public_messages/' + todayKey);
+
+        // 记录本地已经渲染过的弹幕 ID，防止重复发射本地自己提交的弹幕
+        const localRenderedStarIds = new Set();
+
+        publicMessagesRef.on('child_added', (snapshot) => {
+            const starId = snapshot.key;
+            // 如果这个弹幕已经由当前客户端本地发射过了，就跳过，防止自己看到自己重复出来两颗星
+            if (localRenderedStarIds.has(starId)) return;
+
+            const data = snapshot.val();
+            if (data && data.text) {
+                launchStar(data.text, false);
+            }
+        });
+
+        // 绑定扩散颜料效果和发射星星事件
+        function handleInkSubmit(buttonId, isPrivate) {
+            const btn = document.getElementById(buttonId);
+            btn.addEventListener('mousedown', function(e) {
+                const rect = btn.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const clickY = e.clientY - rect.top;
+                
+                // 将真实的落笔鼠标坐标传给 CSS 变量
+  
+                btn.style.setProperty('--ripple-x', clickX + 'px');
+                btn.style.setProperty('--ripple-y', clickY + 'px');
+                
+                // 激活颜料落笔扩散状态
+                btn.classList.add('btn-active-ink');
+            });
+            btn.addEventListener('click', function() {
+                const text = msgInput.value.trim();
+                if (!text) {
+                    setTimeout(() => {
+                        btn.classList.remove('btn-active-ink');
+                    }, 600);
+                    return;
+                }
+
+                if (isPrivate) {
+                    // 私有弹幕：只在本地生成，不上传至公共 Firebase 数据库
+                    launchStar(text, true);
+                } else {
+                    // 公共弹幕：上传至 Firebase 下代表“今天”的路径下
+                    const newMsgRef = publicMessagesRef.push();
+                    const starId = newMsgRef.key;
+                    
+                    // 将本地 ID 放入排除集，防止 child_added 重复飘星
+                    localRenderedStarIds.add(starId);
+                    
+                    newMsgRef.set({
+                        text: text,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    }).then(() => {
+                        // 在本地发射星星
+                        launchStar(text, false);
+                    }).catch((error) => {
+                        console.error("Firebase write error: ", error);
+                    });
+                }
+                
+                // 扩散完成后重置按钮，以便下一次落笔使用
+                setTimeout(() => {
+             
+                    btn.classList.remove('btn-active-ink');
+                }, 600);
+            });
+        }
+
+        handleInkSubmit('submit-private', true);
+        handleInkSubmit('submit-public', false);
     </script>
 </body>
 </html>
