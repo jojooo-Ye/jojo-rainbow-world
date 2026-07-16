@@ -153,39 +153,27 @@
         .action-button-block { flex: 1; display: flex; flex-direction: column; align-items: center;
         }
         
-        /* 第二页提交按钮重构：
-           未按下时：浅色、高透明度、带模糊、无缝融合。
-           按下时：利用伪元素从点击坐标点如颜料般像圆环一样扩散至填满按钮，饱和度增高、变亮变深。
-        */
         .board-submit-btn {
             font-family: 'Geist Pixel', monospace, sans-serif;
             width: 100%; padding: 12px 10px; border: none; border-radius: 20px;
             font-size: 1.1rem; font-weight: bold; cursor: pointer;
             position: relative; overflow: hidden;
             z-index: 1;
-            /* 初始化常态：浅色、高透明融合度 */
             backdrop-filter: blur(5px);
             transition: transform 0.2s, color 0.4s;
         }
         
-        /* 绿色按钮 (Send to your sky) 常态 */
         .btn-private {
             background: rgba(163, 230, 53, 0.15);
-            /* 极低饱和度浅色 */
             color: rgba(163, 230, 53, 0.7);
-            /* 融入背景的浅文字 */
             border: 1px solid rgba(163, 230, 53, 0.3);
         }
-        /* 蓝色按钮 (Send to the orbit) 常态 */
         .btn-public {
             background: rgba(6, 182, 212, 0.15);
-            /* 极低饱和度浅色 */
             color: rgba(6, 182, 212, 0.7);
-            /* 融入背景的浅文字 */
             border: 1px solid rgba(6, 182, 212, 0.3);
         }
 
-        /* 颜料落纸填满特效的核心伪元素 */
         .board-submit-btn::after {
             content: '';
             position: absolute;
@@ -201,29 +189,22 @@
             z-index: -1;
         }
 
-        /* 颜料落笔注入状态时的扩散动画 */
         .board-submit-btn.btn-active-ink::after {
             animation: inkSpread 0.45s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
         }
 
-        /* 绿色按钮按下时的深色高饱和度颜料 */
         .btn-private::after {
             background: #84cc16;
-            /* 饱和度明显提高、颜色变深的绿色 */
         }
-        /* 蓝色按钮按下时的深色高饱和度颜料 */
         .btn-public::after {
             background: #0891b2;
-            /* 饱和度明显提高、颜色变深的蓝色 */
         }
 
-        /* 点击过渡激活时，文字颜色变深变清晰 */
         .board-submit-btn.btn-active-ink {
             color: #000000;
             border-color: transparent;
         }
 
-        /* 点击时的轻微物理凹陷 */
         .board-submit-btn:active {
             transform: scale(0.97);
         }
@@ -238,7 +219,6 @@
             }
             100% {
                 transform: scale(35);
-                /* 放大到完全覆盖整个按钮 */
                 opacity: 1;
             }
         }
@@ -281,8 +261,8 @@
             transform: skewX(15deg); } 50% { left: -25%; } 100% { left: 100%; transform: skewX(15deg);
             } }
 
-        /* P3 3D 照片墙空间 */
-        #page-3 { background: #000;
+        /* P3 3D 照片墙空间背景设为透明 */
+        #page-3 { background: transparent;
             display: none; }
         #page-3.active { display: flex;
             }
@@ -296,17 +276,75 @@
             left: -110px; top: -140px; width: 220px; height: 280px;
             background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px;
             overflow: hidden; filter: grayscale(100%);
-            transition: all 0.4s ease; backface-visibility: hidden;
+            transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1); backface-visibility: hidden;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .dome-segment img {
             width: 100%;
             height: 100%; object-fit: cover; pointer-events: none;
         }
-        .dome-segment:hover { 
+        .dome-segment:not(.focused):hover { 
             filter: grayscale(0%);
             border-color: rgba(255,255,255,0.7); 
             box-shadow: 0 0 25px rgba(255,255,255,0.2); transform: scale(1.05);
+        }
+
+        .dome-segment.focused {
+            filter: grayscale(0%) !important;
+            border-color: rgba(255, 255, 255, 0.9) !important;
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.4) !important;
+            z-index: 9999 !important;
+        }
+
+        /* 音乐图标及气泡容器 */
+        .music-container {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+        .music-icon {
+            font-size: 1.6rem;
+            color: rgba(255, 255, 255, 0.4);
+            transition: all 0.3s ease;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+        }
+        .music-container:hover .music-icon {
+            color: #06b6d4;
+            transform: scale(1.15);
+            text-shadow: 0 0 15px rgba(6, 182, 212, 0.8);
+        }
+        .music-icon.playing {
+            animation: musicWave 1.4s infinite ease-in-out;
+            color: #a3e635;
+            text-shadow: 0 0 15px rgba(163, 230, 53, 0.8);
+        }
+        @keyframes musicWave {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.12) rotate(10deg); }
+        }
+        .music-tooltip {
+            font-family: 'Geist Pixel', monospace, sans-serif;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(0, 0, 0, 0.6);
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(-15px);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            white-space: nowrap;
+        }
+        .music-container:hover .music-tooltip {
+            opacity: 1;
+            transform: translateX(0);
         }
 
         @keyframes rainbowShift { 0% { background-position: 0% 50% } 50% { background-position: 100% 50% } 100% { background-position: 0% 50% } }
@@ -326,6 +364,15 @@
 </head>
 <body>
 
+    <audio id="bg-music" loop>
+        <source src="睡皇后-G.E.M.BGM.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="music-container" id="music-container">
+        <div class="music-icon">♫</div>
+        <div class="music-tooltip">Jojo's recent favourite</div>
+    </div>
+
     <canvas id="dotFieldCanvas"></canvas>
     <div id="rainbow-transition"></div>
     <div id="shared-rainbow" class="state-p1"></div>
@@ -336,6 +383,7 @@
                 <canvas id="textPressureCanvas"></canvas>
             </div>
             <p class="p1-subtitle 
+            
             split-target" data-text="try to touch the title with your mouse"></p>
             <button class="rainbow-btn start-btn cascade-item" id="start-button">Start!</button>
         </div>
@@ -345,17 +393,21 @@
         <div id="p2-star-layer"></div>
         <div class="board-container">
             <h2 class="split-target" data-text="Jojo's Star Board"></h2>
+            
             <textarea id="message-input" class="cascade-item" placeholder="Share a thought, wish, or greeting..."></textarea>
     
             
             <div class="board-actions">
                 <div class="action-button-block">
                     <button id="submit-private" class="board-submit-btn btn-private cascade-item">Send to your sky</button>
+       
+                    
                     <div class="button-subheading split-target" data-text="only you and Jojo can see this message"></div>
      
                </div>
                 <div class="action-button-block">
-                    <button id="submit-public" class="board-submit-btn btn-public cascade-item">Send to the orbit</button>
+                    <button 
+id="submit-public" class="board-submit-btn btn-public cascade-item">Send to the orbit</button>
                     <div class="button-subheading split-target" data-text="all can see this message"></div>
                 </div>
   
@@ -363,19 +415,21 @@
         </div>
         
         <div class="nav-bottom-left">
-            <button class="rainbow-btn cascade-item" id="p2-back">Back</button>
+            <button 
+class="rainbow-btn cascade-item" id="p2-back">Back</button>
         </div>
         <div class="nav-bottom-right">
+            
             <button class="rainbow-btn cascade-item" id="p2-next">Next</button>
         </div>
     </div>
 
-    <div id="page-3" 
-    class="page-content" style="z-index: 20; background:black;">
+    <div id="page-3" class="page-content" style="z-index: 20;">
         <div class="dome-scene" id="dome-scene">
             <div class="dome-wrapper" id="dome-wrapper"></div>
         </div>
-        <div class="nav-bottom-left">
+  
+      <div class="nav-bottom-left">
             <button class="rainbow-btn cascade-item" id="p3-back">Back</button>
         </div>
     </div>
@@ -384,23 +438,18 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
     <script>
-        // --- FIREBASE CONFIGURATION ---
-        // 请在此处填入你自己的 Firebase 项目配置：
-      const firebaseConfig = {
+        const firebaseConfig = {
             apiKey: "AIzaSyDnb6BkDv0u9FOYI3Jfw3uVeOjSwAw2pl8",
             authDomain: "jojos-rainbow-world.firebaseapp.com",
             databaseURL: "https://jojos-rainbow-world-default-rtdb.firebaseio.com",
+  
             projectId: "jojos-rainbow-world",
             storageBucket: "jojos-rainbow-world.firebasestorage.app",
             messagingSenderId: "364505769755",
             appId: "1:364505769755:web:a253108f71963566a328be"
         };
-
-        // 初始化 Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-
-        // 辅助函数：获取当天的日期标识键 YYYY-MM-DD（基于用户本地时间）
         function getTodayDateKey() {
             const d = new Date();
             const year = d.getFullYear();
@@ -409,21 +458,16 @@
             return `${year}-${month}-${day}`;
         }
 
-        // 状态跟踪锁
-        let pageVisitedStates = { p1: false, p2: false, 
-        p3: false };
-
-        // --- 背景粒子 ---
+        let pageVisitedStates = { p1: false, p2: false, p3: false };
         let mouse = { x: -1000, y: -1000 };
         window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
-
         const bgCanvas = document.getElementById('dotFieldCanvas');
         const bgCtx = bgCanvas.getContext('2d');
         let dots = [];
-        
         function initDotField() {
-  
-            bgCanvas.width = window.innerWidth; bgCanvas.height = window.innerHeight; dots = [];
+            bgCanvas.width = window.innerWidth;
+            bgCanvas.height = window.innerHeight;
+            dots = [];
             for (let x = 8; x < bgCanvas.width; x += 16) {
                 for (let y = 8; y < bgCanvas.height; y += 16) {
                     dots.push({ originX: x, originY: y, x: x, y: y, sparklePhase: Math.random() * Math.PI * 2, sparkleSpeed: 0.02 + Math.random() * 0.04 });
@@ -442,26 +486,23 @@
                 let waveX = Math.sin(time * 0.002 + dot.originY * 0.01) * 3;
                 let waveY = Math.cos(time * 0.002 + dot.originX * 0.01) * 3;
                 let targetX = dot.originX + waveX; let targetY = dot.originY + waveY;
-
                 let 
                 dx = targetX - mouse.x; let dy = targetY - mouse.y;
                 let dist = Math.sqrt(dx*dx + dy*dy);
-                
                 if (dist < 350) {
                     let push = ((350 - dist) / 350) * 22;
-    
+                    
                     let angle = Math.atan2(dy, dx);
                     targetX += Math.cos(angle) * push; targetY += Math.sin(angle) * push;
                 }
                 dot.sparklePhase += dot.sparkleSpeed;
-                let 
-                currentRadius = 1.5 + Math.sin(dot.sparklePhase) * 0.6;
+                let currentRadius = 1.5 + Math.sin(dot.sparklePhase) * 0.6;
+          
                 bgCtx.fillRect(targetX - currentRadius/2, targetY - currentRadius/2, currentRadius, currentRadius);
             });
             requestAnimationFrame(drawCanvasFrames);
         }
         requestAnimationFrame(drawCanvasFrames);
-        // --- 动画分配引擎 ---
         function triggerPageCascadeAnimation(pageId, pageContainer) {
             if (pageVisitedStates[pageId]) {
                 pageContainer.classList.add('no-anim');
@@ -508,7 +549,6 @@
             });
         }
 
-        // --- P1 标题系统（已实现完美居中 + 字体放大） ---
         const canvas = document.getElementById('textPressureCanvas');
         const ctx = canvas.getContext('2d');
         const textStr = "jojo's rainbow world"; 
@@ -518,14 +558,12 @@
             canvas.width = 560;
             canvas.height = 150;
             ctx.font = `900 50px 'Archivo Black', sans-serif`;
-            
             let totalWidth = 0;
             for(let i=0; i<textStr.length; i++) {
                 totalWidth += ctx.measureText(textStr[i]).width + 1.5;
             }
             totalWidth -= 1.5;
             let startX = (canvas.width - totalWidth) / 2;
-            
             letters = [];
             for(let i=0; i<textStr.length; i++) {
                 let charW = ctx.measureText(textStr[i]).width;
@@ -539,13 +577,10 @@
             ctx.font = `900 50px 'Archivo Black', sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
             const rect = canvas.getBoundingClientRect();
             let cMouseX = mouse.x - rect.left, cMouseY = mouse.y - rect.top;
-
             if (typingProgress < letters.length) { typingProgress += 0.35;
             }
-
             letters.forEach((l, idx) => {
                 if (idx > Math.floor(typingProgress)) return;
-
                 let dx = l.baseX - cMouseX, dy = l.baseY - cMouseY;
                 let dist = Math.sqrt(dx*dx + dy*dy);
                 if (dist 
@@ -555,7 +590,6 @@
                 l.vx = (l.vx + (l.targetScaleX - l.scaleX) * 0.12) * 0.78; l.scaleX += l.vx;
   
                 l.vy = (l.vy + (l.targetScaleY - l.scaleY) * 0.12) * 0.78; l.scaleY += l.vy;
-
                 ctx.save(); ctx.translate(l.baseX, l.baseY); ctx.scale(l.scaleX, l.scaleY);
                 ctx.fillStyle = "#ffffff"; ctx.fillText(l.char, 0, 0); ctx.restore();
             });
@@ -566,18 +600,37 @@
             initTextCanvas(); animateTextPressure(); 
             triggerPageCascadeAnimation('p1', document.getElementById('p1-content'));
         });
-        // --- 3D 照片墙 ---
         const domeWrapper = document.getElementById('dome-wrapper');
         const domeScene = document.getElementById('dome-scene');
+        let activeFocusedSegment = null;
         for(let i=0; i<24; i++) {
             const seg = document.createElement('div');
             seg.className = 'dome-segment'; 
             seg.innerHTML = `<img src="m${i+1}.jpg" alt="Memory #${i+1}">`;
-            seg.style.transform = `rotateY(${(360/24)*i}deg) translateZ(550px)`;
+            const origTransform = `rotateY(${(360/24)*i}deg) translateZ(550px)`;
+            seg.style.transform = origTransform;
+            seg.dataset.origTransform = origTransform;
+            seg.addEventListener('dblclick', (e) => {
+                e.stopPropagation();
+                if (!activeFocusedSegment) {
+                    activeFocusedSegment = seg;
+                    seg.classList.add('focused');
+                    seg.style.transform 
+                    = `rotateY(${-rotY}deg) rotateX(${-rotX}deg) translateZ(350px) scale(2.2)`;
+                } else if (activeFocusedSegment === seg) {
+                    seg.classList.remove('focused');
+                    seg.style.transform = seg.dataset.origTransform;
+                    activeFocusedSegment = null;
+          
+                }
+            });
             domeWrapper.appendChild(seg);
         }
         let isDragging = false, startX, startY, rotY = 0, rotX = 0, tRotY = 0, tRotX = 0;
-        domeScene.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX; startY = e.clientY; });
+        domeScene.addEventListener('mousedown', e => { 
+            if (activeFocusedSegment) return;
+            isDragging = true; startX = e.clientX; startY = e.clientY; 
+        });
         window.addEventListener('mouseup', () => { isDragging = false; });
         window.addEventListener('mousemove', e => {
             if(!isDragging) return;
@@ -589,60 +642,103 @@
             rotY += (tRotY - rotY) * 0.1;
             rotX += (tRotX - rotX) * 0.1;
             domeWrapper.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) scale(0.75)`;
+            if (activeFocusedSegment) {
+                activeFocusedSegment.style.transform = `rotateY(${-rotY}deg) rotateX(${-rotX}deg) translateZ(350px) scale(2.2)`;
+            }
             requestAnimationFrame(animDome);
         }
         animDome();
 
-        // --- 路由切换 ---
         const p1Content = document.getElementById('p1-content');
         const p2Content = document.getElementById('p2-content');
         const p3Content = document.getElementById('page-3');
         const sharedRainbow = document.getElementById('shared-rainbow');
         const transitionSwipe = document.getElementById('rainbow-transition');
+
+        // 音乐控制相关 JS 逻辑
+        const bgMusic = document.getElementById('bg-music');
+        const musicContainer = document.getElementById('music-container');
+        const musicIcon = musicContainer.querySelector('.music-icon');
+
         document.getElementById('start-button').addEventListener('click', () => {
             p1Content.classList.remove('active'); sharedRainbow.className = 'state-p2';
             setTimeout(() => { p2Content.classList.add('active'); triggerPageCascadeAnimation('p2', p2Content); }, 600);
+            
+            // 点击 Start 按钮同步自动播放音乐 (现代浏览器要求必须在用户点击之后才能播放音频)
+            bgMusic.play().then(() => {
+                musicIcon.classList.add('playing');
+            }).catch(err => {
+                console.log("音频自动播放被拦截:", err);
+            });
         });
+
+        // 双击音乐控制区：只关闭音乐，不隐藏符号
+        musicContainer.addEventListener('dblclick', (e) => {
+            e.stopPropagation();
+            bgMusic.pause();
+            musicIcon.classList.remove('playing');
+        });
+
+        // 附加彩蛋：允许单击符号重新恢复播放
+        musicContainer.addEventListener('click', () => {
+            if (bgMusic.paused) {
+                bgMusic.play().then(() => {
+                    musicIcon.classList.add('playing');
+                });
+            }
+        });
+
         document.getElementById('p2-back').addEventListener('click', () => {
             p2Content.classList.remove('active'); sharedRainbow.className = 'state-p1';
             setTimeout(() => { p1Content.classList.add('active'); triggerPageCascadeAnimation('p1', p1Content); }, 600);
         });
+        // 修改路由逻辑：进入P3不再隐藏彩虹
         document.getElementById('p2-next').addEventListener('click', () => {
             transitionSwipe.classList.add('swipe-forward');
-            setTimeout(() => { p2Content.classList.remove('active'); sharedRainbow.style.display = 'none'; p3Content.classList.add('active'); }, 800);
-            setTimeout(() => { transitionSwipe.classList.remove('swipe-forward'); triggerPageCascadeAnimation('p3', p3Content); }, 1600);
+            setTimeout(() => { 
+                p2Content.classList.remove('active'); 
+                p3Content.classList.add('active'); 
+            }, 800);
+            setTimeout(() => 
+            { transitionSwipe.classList.remove('swipe-forward'); triggerPageCascadeAnimation('p3', p3Content); }, 1600);
         });
+        // 修改路由逻辑：从P3返回
         document.getElementById('p3-back').addEventListener('click', () => {
+            if (activeFocusedSegment) {
+                activeFocusedSegment.classList.remove('focused');
+                activeFocusedSegment.style.transform = activeFocusedSegment.dataset.origTransform;
+                activeFocusedSegment = null;
+            }
+          
             transitionSwipe.classList.add('swipe-backward');
-            setTimeout(() => { p3Content.classList.remove('active'); sharedRainbow.style.display = 'block'; p2Content.ctx ? null : p2Content.classList.add('active'); }, 800);
+            setTimeout(() => { 
+                p3Content.classList.remove('active'); 
+                p2Content.classList.add('active'); 
+            }, 800);
             setTimeout(() => { transitionSwipe.classList.remove('swipe-backward'); triggerPageCascadeAnimation('p2', p2Content); }, 1600);
         });
-        // --- 拖拽系统 ---
         function dragElement(elmnt) {
             let p1 = 0, p2 = 0, p3 = 0, p4 = 0;
             elmnt.onmousedown = (e) => { e.preventDefault(); p3 = e.clientX; p4 = e.clientY; document.onmouseup = closeD; document.onmousemove = moveD;
             elmnt.style.animationPlayState = 'paused'; };
             function moveD(e) { p1 = p3 - e.clientX; p2 = p4 - e.clientY; p3 = e.clientX;
-                p4 = e.clientY; elmnt.style.top = (elmnt.offsetTop - p2) + "px"; elmnt.style.left = (elmnt.offsetLeft - p1) + "px";
+            p4 = e.clientY; elmnt.style.top = (elmnt.offsetTop - p2) + "px"; elmnt.style.left = (elmnt.offsetLeft - p1) + "px";
             }
             function closeD() { document.onmouseup = null;
-                document.onmousemove = null; elmnt.style.animationPlayState = 'running'; }
+            document.onmousemove = null; elmnt.style.animationPlayState = 'running'; }
         }
 
-        // --- 弹幕系统 ---
         const msgInput = document.getElementById('message-input'), p2StarLayer = document.getElementById('p2-star-layer');
         function launchStar(text, isPrivate) {
             if (!text) return;
             const star = document.createElement('div');
             star.className = isPrivate ? 'flying-star private-star' : 'flying-star';
             star.innerHTML = (isPrivate ? `🔒 ` : `✨ `) + text;
-
             const boxRect = msgInput.getBoundingClientRect();
             star.style.left = (boxRect.left + boxRect.width / 2) + 'px';
             star.style.top = (boxRect.top + boxRect.height / 2) + 'px';
             star.style.transform = 'translate(-50%, -50%) scale(0.1)';
             star.style.transition = 'all 1.1s cubic-bezier(0.16, 1, 0.3, 1)'; 
-            
             p2StarLayer.appendChild(star);
             const targetLeft = 10 + Math.random() * 65; const targetTop = 10 + Math.random() * 35;
             setTimeout(() => {
@@ -657,80 +753,55 @@
             msgInput.value = '';
         }
 
-        // --- FIREBASE 核心逻辑对接 ---
-        // 1. 实时监听今天的公共弹幕
         const todayKey = getTodayDateKey();
         const publicMessagesRef = database.ref('public_messages/' + todayKey);
-
-        // 记录本地已经渲染过的弹幕 ID，防止重复发射本地自己提交的弹幕
         const localRenderedStarIds = new Set();
-
         publicMessagesRef.on('child_added', (snapshot) => {
             const starId = snapshot.key;
-            // 如果这个弹幕已经由当前客户端本地发射过了，就跳过，防止自己看到自己重复出来两颗星
             if (localRenderedStarIds.has(starId)) return;
-
             const data = snapshot.val();
-            if (data && data.text) {
-                launchStar(data.text, false);
-            }
+            if (data && data.text) { launchStar(data.text, false); }
         });
-
-        // 绑定扩散颜料效果和发射星星事件
         function handleInkSubmit(buttonId, isPrivate) {
             const btn = document.getElementById(buttonId);
             btn.addEventListener('mousedown', function(e) {
                 const rect = btn.getBoundingClientRect();
                 const clickX = e.clientX - rect.left;
                 const clickY = e.clientY - rect.top;
-                
-                // 将真实的落笔鼠标坐标传给 CSS 变量
-  
                 btn.style.setProperty('--ripple-x', clickX + 'px');
-                btn.style.setProperty('--ripple-y', clickY + 'px');
-                
-                // 激活颜料落笔扩散状态
+                btn.style.setProperty('--ripple-y', clickY 
+                + 'px');
                 btn.classList.add('btn-active-ink');
             });
             btn.addEventListener('click', function() {
                 const text = msgInput.value.trim();
                 if (!text) {
-                    setTimeout(() => {
-                        btn.classList.remove('btn-active-ink');
-                    }, 600);
+                    setTimeout(() => { btn.classList.remove('btn-active-ink'); }, 600);
                     return;
-                }
-
+                
+            }
                 if (isPrivate) {
-                    // 私有弹幕：只在本地生成，不上传至公共 Firebase 数据库
                     launchStar(text, true);
                 } else {
-                    // 公共弹幕：上传至 Firebase 下代表“今天”的路径下
                     const newMsgRef = publicMessagesRef.push();
+                    
                     const starId = newMsgRef.key;
-                    
-                    // 将本地 ID 放入排除集，防止 child_added 重复飘星
                     localRenderedStarIds.add(starId);
-                    
                     newMsgRef.set({
                         text: text,
                         timestamp: firebase.database.ServerValue.TIMESTAMP
+       
                     }).then(() => {
-                        // 在本地发射星星
                         launchStar(text, false);
                     }).catch((error) => {
                         console.error("Firebase write error: ", error);
+          
                     });
                 }
-                
-                // 扩散完成后重置按钮，以便下一次落笔使用
-                setTimeout(() => {
-             
-                    btn.classList.remove('btn-active-ink');
-                }, 600);
+                setTimeout(() => { btn.classList.remove('btn-active-ink');
+            }, 600);
             });
         }
-
         handleInkSubmit('submit-private', true);
         handleInkSubmit('submit-public', false);
     </script>
