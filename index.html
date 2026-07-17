@@ -121,9 +121,9 @@
         .rainbow-btn:active { filter: grayscale(100%) brightness(0.4) saturate(0); transform: scale(0.96);
         }
 
-        /* 强制画布高度和宽度，高度从 120px 调升至 150px 以适应更大的字体并防止截断 */
+        /* 强制画布高度和宽度，高度从 120px 调升至 150px 以适应更大的字体并防止截断 —— 已调高 z-index 增强独立层级防止遮挡 */
         .canvas-container { position: relative;
-            width: 100%; height: 150px; display: flex; justify-content: center; align-items: center;
+            width: 100%; height: 150px; display: flex; justify-content: center; align-items: center; z-index: 20;
         }
         .p1-subtitle { font-size: 1.3rem; margin-top: 15px; color: #cccccc; text-align: center;
         }
@@ -400,9 +400,7 @@
             <div class="canvas-container">
                 <canvas id="textPressureCanvas"></canvas>
             </div>
-            <p class="p1-subtitle 
-            
-            split-target" data-text="try to touch the title with your mouse"></p>
+            <p class="p1-subtitle split-target" data-text="try to touch the title with your mouse"></p>
             
             <button class="rainbow-btn start-btn cascade-item" id="start-button">Start!</button>
   
@@ -416,37 +414,23 @@
             
             <textarea id="message-input" class="cascade-item" placeholder="Share a thought, wish, or greeting..."></textarea>
     
-      
-            
-  
             <div class="board-actions">
                 <div class="action-button-block">
                     <button id="submit-private" class="board-submit-btn btn-private cascade-item">Send to your sky</button>
-       
-                    
-        
-                    
                     <div class="button-subheading split-target" data-text="only you and Jojo can see this message"></div>
-     
                </div>
-                <div class="action-button-block">
-                    <button 
-id="submit-public" class="board-submit-btn 
-                    btn-public cascade-item">Send to the orbit</button>
+            
+               <div class="action-button-block">
+                    <button id="submit-public" class="board-submit-btn btn-public cascade-item">Send to the orbit</button>
                     <div class="button-subheading split-target" data-text="all can see this message"></div>
                 </div>
-  
-           </div>
+            </div>
         </div>
         
         <div class="nav-bottom-left">
-            <button 
-class="rainbow-btn cascade-item" 
-            id="p2-back">Back</button>
+            <button class="rainbow-btn cascade-item" id="p2-back">Back</button>
         </div>
         <div class="nav-bottom-right">
-           
-  
             <button class="rainbow-btn cascade-item" id="p2-next">Next</button>
         </div>
     </div>
@@ -456,7 +440,6 @@ class="rainbow-btn cascade-item"
             <div class="dome-wrapper" id="dome-wrapper"></div>
         </div>
   
- 
         <div class="nav-bottom-left">
             <button class="rainbow-btn cascade-item" id="p3-back">Back</button>
         </div>
@@ -470,13 +453,10 @@ class="rainbow-btn cascade-item"
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyDnb6BkDv0u9FOYI3Jfw3uVeOjSwAw2pl8",
-            authDomain: 
-            "jojos-rainbow-world.firebaseapp.com",
+            authDomain: "jojos-rainbow-world.firebaseapp.com",
             databaseURL: "https://jojos-rainbow-world-default-rtdb.firebaseio.com",
-  
             projectId: "jojos-rainbow-world",
             storageBucket: "jojos-rainbow-world.firebasestorage.app",
-    
             messagingSenderId: "364505769755",
             appId: "1:364505769755:web:a253108f71963566a328be"
         };
@@ -518,22 +498,17 @@ class="rainbow-btn cascade-item"
                 let waveX = Math.sin(time * 0.002 + dot.originY * 0.01) * 3;
                 let waveY = Math.cos(time * 0.002 + dot.originX * 0.01) * 3;
                 let targetX = dot.originX + waveX; let targetY = dot.originY + waveY;
-                let 
                 
-                dx = targetX - mouse.x; let dy = targetY - mouse.y;
+                let dx = targetX - mouse.x; let dy = targetY - mouse.y;
                 let dist = Math.sqrt(dx*dx + dy*dy);
                 if (dist < 350) {
                     let push = ((350 - dist) / 350) * 22;
-    
-                    
                     let angle = Math.atan2(dy, dx);
                     targetX += Math.cos(angle) * push; targetY += Math.sin(angle) * push;
                 }
                
-                
                 dot.sparklePhase += dot.sparkleSpeed;
                 let currentRadius = 1.5 + Math.sin(dot.sparklePhase) * 0.6;
-          
                 bgCtx.fillRect(targetX - currentRadius/2, targetY - currentRadius/2, currentRadius, currentRadius);
             });
             requestAnimationFrame(drawCanvasFrames);
@@ -553,24 +528,18 @@ class="rainbow-btn cascade-item"
                     target.innerHTML = '';
                     const words = text.split(' ');
         
-                    
                     words.forEach((wordStr, wIdx) => {
                         const wordSpan = document.createElement('span');
                         wordSpan.className = 'split-word';
-                        
-                        
+    
                         wordStr.split('').forEach(charStr => {
-      
                             const charSpan = document.createElement('span');
                             charSpan.className = 'split-char';
-       
                             charSpan.textContent = charStr;
- 
                             wordSpan.appendChild(charSpan);
                         });
                         
                         target.appendChild(wordSpan);
-          
                         if (wIdx < words.length - 1) target.appendChild(document.createTextNode(' '));
                     });
                     target.setAttribute('data-compiled', 'true');
@@ -596,7 +565,7 @@ class="rainbow-btn cascade-item"
         let letters = [];
         let typingProgress = 0;
         function initTextCanvas() {
-            canvas.width = 560;
+            canvas.width = 700;
             canvas.height = 150;
             ctx.font = `900 50px 'Archivo Black', sans-serif`;
             let totalWidth = 0;
@@ -624,19 +593,15 @@ class="rainbow-btn cascade-item"
                 if (idx > Math.floor(typingProgress)) return;
                 let dx = l.baseX - cMouseX, dy = l.baseY - cMouseY;
                 let dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist 
-                
-                < 150) {
+                if (dist < 150) {
                     let p = (150 - dist) / 150; l.targetScaleX = 1 + p * 0.95; l.targetScaleY = 1 - p * 0.45; 
                 } else { l.targetScaleX = 1; l.targetScaleY = 1; }
                
-                
                 l.vx = (l.vx + (l.targetScaleX - l.scaleX) * 0.12) * 0.78; l.scaleX += l.vx;
-  
                 l.vy = (l.vy + (l.targetScaleY - l.scaleY) * 0.12) * 0.78; l.scaleY += l.vy;
+        
                 ctx.save(); ctx.translate(l.baseX, l.baseY); ctx.scale(l.scaleX, l.scaleY);
-                ctx.fillStyle = "#ffffff"; ctx.fillText(l.char, 
-                0, 0); ctx.restore();
+                ctx.fillStyle = "#ffffff"; ctx.fillText(l.char, 0, 0); ctx.restore();
             });
             requestAnimationFrame(animateTextPressure);
         }
@@ -676,15 +641,11 @@ class="rainbow-btn cascade-item"
                 if (!activeFocusedSegment) {
                     activeFocusedSegment = seg;
                     seg.classList.add('focused');
-                    // 
                     // 调整放大照片的 scale 从 1.8 变为 1.4，增加上下间隙
-                    seg.style.transform 
-                    = `rotateY(${-rotY}deg) rotateX(${-rotX}deg) translateZ(600px) scale(1.4)`;
+                    seg.style.transform = `rotateY(${-rotY}deg) rotateX(${-rotX}deg) translateZ(600px) scale(1.4)`;
                 } else if (activeFocusedSegment === seg) {
                     seg.classList.remove('focused');
-         
                     seg.style.transform = seg.dataset.origTransform;
-            
                     activeFocusedSegment = null;
                 }
             });
@@ -730,7 +691,6 @@ class="rainbow-btn cascade-item"
             bgMusic.play().then(() => {
                 musicIcon.classList.add('playing');
             }).catch(err => {
-   
                 console.log("音频自动播放被拦截:", err);
             });
         });
@@ -756,9 +716,7 @@ class="rainbow-btn cascade-item"
                 p2Content.classList.remove('active'); 
                 p3Content.classList.add('active'); 
             }, 800);
-            setTimeout(() => 
-         
-            { transitionSwipe.classList.remove('swipe-forward'); triggerPageCascadeAnimation('p3', p3Content); }, 1600);
+            setTimeout(() => { transitionSwipe.classList.remove('swipe-forward'); triggerPageCascadeAnimation('p3', p3Content); }, 1600);
         });
         document.getElementById('p3-back').addEventListener('click', () => {
             if (activeFocusedSegment) {
@@ -779,10 +737,10 @@ class="rainbow-btn cascade-item"
             elmnt.onmousedown = (e) => { e.preventDefault(); p3 = e.clientX; p4 = e.clientY; document.onmouseup = closeD; document.onmousemove = moveD;
             elmnt.style.animationPlayState = 'paused'; };
             function moveD(e) { p1 = p3 - e.clientX; p2 = p4 - e.clientY; p3 = e.clientX;
-            p4 = e.clientY; elmnt.style.top = (elmnt.offsetTop - p2) + "px"; elmnt.style.left = (elmnt.offsetLeft - p1) + "px";
+                p4 = e.clientY; elmnt.style.top = (elmnt.offsetTop - p2) + "px"; elmnt.style.left = (elmnt.offsetLeft - p1) + "px";
             }
             function closeD() { document.onmouseup = null;
-            document.onmousemove = null; elmnt.style.animationPlayState = 'running'; }
+                document.onmousemove = null; elmnt.style.animationPlayState = 'running'; }
         }
 
         const msgInput = document.getElementById('message-input'), p2StarLayer = document.getElementById('p2-star-layer');
@@ -826,9 +784,7 @@ class="rainbow-btn cascade-item"
                 const clickX = e.clientX - rect.left;
                 const clickY = e.clientY - rect.top;
                 btn.style.setProperty('--ripple-x', clickX + 'px');
-                btn.style.setProperty('--ripple-y', clickY 
-                
-                + 'px');
+                btn.style.setProperty('--ripple-y', clickY + 'px');
                 btn.classList.add('btn-active-ink');
             });
             btn.addEventListener('click', function() {
@@ -836,24 +792,21 @@ class="rainbow-btn cascade-item"
                 if (!text) {
                     setTimeout(() => { btn.classList.remove('btn-active-ink'); }, 600);
                     return;
-            }
+                }
     
                 if (isPrivate) {
                     launchStar(text, true);
                 } else {
                     const newMsgRef = publicMessagesRef.push();
                     const starId = newMsgRef.key;
- 
                     localRenderedStarIds.add(starId);
                     newMsgRef.set({
                         text: text,
                         timestamp: firebase.database.ServerValue.TIMESTAMP
-           
                     }).then(() => {
                         launchStar(text, false);
                     }).catch((error) => {
                         console.error("Firebase write error: ", error);
-              
                     });
                 }
                 setTimeout(() => { btn.classList.remove('btn-active-ink');
