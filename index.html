@@ -289,11 +289,26 @@
             box-shadow: 0 0 25px rgba(255,255,255,0.2); transform: scale(1.05);
         }
 
+        /* 调整放大照片的层级 z-index */
         .dome-segment.focused {
             filter: grayscale(0%) !important;
             border-color: rgba(255, 255, 255, 0.9) !important;
             box-shadow: 0 0 50px rgba(255, 255, 255, 0.4) !important;
-            z-index: 9999 !important;
+            z-index: 99999 !important;
+            /* 调大层级，使其浮于所有照片最上层 */
+        }
+
+        /* 第三页底部中央提示文字 */
+        .p3-bottom-tip {
+            position: absolute;
+            bottom: 35px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-align: center;
+            pointer-events: none;
+            z-index: 100;
         }
 
         /* 音乐图标及气泡容器 */
@@ -324,8 +339,10 @@
             text-shadow: 0 0 15px rgba(163, 230, 53, 0.8);
         }
         @keyframes musicWave {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            50% { transform: scale(1.12) rotate(10deg); }
+            0%, 100% { transform: scale(1) rotate(0deg);
+            }
+            50% { transform: scale(1.12) rotate(10deg);
+            }
         }
         .music-tooltip {
             font-family: 'Geist Pixel', monospace, sans-serif;
@@ -379,13 +396,16 @@
 
     <div id="p1-content" class="page-content active">
         <div class="p1-center-panel">
+      
             <div class="canvas-container">
                 <canvas id="textPressureCanvas"></canvas>
             </div>
             <p class="p1-subtitle 
             
             split-target" data-text="try to touch the title with your mouse"></p>
+            
             <button class="rainbow-btn start-btn cascade-item" id="start-button">Start!</button>
+  
         </div>
     </div>
 
@@ -396,18 +416,23 @@
             
             <textarea id="message-input" class="cascade-item" placeholder="Share a thought, wish, or greeting..."></textarea>
     
+      
             
+  
             <div class="board-actions">
                 <div class="action-button-block">
                     <button id="submit-private" class="board-submit-btn btn-private cascade-item">Send to your sky</button>
        
+                    
+        
                     
                     <div class="button-subheading split-target" data-text="only you and Jojo can see this message"></div>
      
                </div>
                 <div class="action-button-block">
                     <button 
-id="submit-public" class="board-submit-btn btn-public cascade-item">Send to the orbit</button>
+id="submit-public" class="board-submit-btn 
+                    btn-public cascade-item">Send to the orbit</button>
                     <div class="button-subheading split-target" data-text="all can see this message"></div>
                 </div>
   
@@ -416,10 +441,12 @@ id="submit-public" class="board-submit-btn btn-public cascade-item">Send to the 
         
         <div class="nav-bottom-left">
             <button 
-class="rainbow-btn cascade-item" id="p2-back">Back</button>
+class="rainbow-btn cascade-item" 
+            id="p2-back">Back</button>
         </div>
         <div class="nav-bottom-right">
-            
+           
+  
             <button class="rainbow-btn cascade-item" id="p2-next">Next</button>
         </div>
     </div>
@@ -429,9 +456,12 @@ class="rainbow-btn cascade-item" id="p2-back">Back</button>
             <div class="dome-wrapper" id="dome-wrapper"></div>
         </div>
   
-      <div class="nav-bottom-left">
+ 
+        <div class="nav-bottom-left">
             <button class="rainbow-btn cascade-item" id="p3-back">Back</button>
         </div>
+
+        <div class="p3-bottom-tip cascade-item split-target" data-text="doubleclick to magnify~"></div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -440,11 +470,13 @@ class="rainbow-btn cascade-item" id="p2-back">Back</button>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyDnb6BkDv0u9FOYI3Jfw3uVeOjSwAw2pl8",
-            authDomain: "jojos-rainbow-world.firebaseapp.com",
+            authDomain: 
+            "jojos-rainbow-world.firebaseapp.com",
             databaseURL: "https://jojos-rainbow-world-default-rtdb.firebaseio.com",
   
             projectId: "jojos-rainbow-world",
             storageBucket: "jojos-rainbow-world.firebasestorage.app",
+    
             messagingSenderId: "364505769755",
             appId: "1:364505769755:web:a253108f71963566a328be"
         };
@@ -487,14 +519,18 @@ class="rainbow-btn cascade-item" id="p2-back">Back</button>
                 let waveY = Math.cos(time * 0.002 + dot.originX * 0.01) * 3;
                 let targetX = dot.originX + waveX; let targetY = dot.originY + waveY;
                 let 
+                
                 dx = targetX - mouse.x; let dy = targetY - mouse.y;
                 let dist = Math.sqrt(dx*dx + dy*dy);
                 if (dist < 350) {
                     let push = ((350 - dist) / 350) * 22;
+    
                     
                     let angle = Math.atan2(dy, dx);
                     targetX += Math.cos(angle) * push; targetY += Math.sin(angle) * push;
                 }
+               
+                
                 dot.sparklePhase += dot.sparkleSpeed;
                 let currentRadius = 1.5 + Math.sin(dot.sparklePhase) * 0.6;
           
@@ -517,20 +553,25 @@ class="rainbow-btn cascade-item" id="p2-back">Back</button>
                     target.innerHTML = '';
                     const words = text.split(' ');
         
+                    
                     words.forEach((wordStr, wIdx) => {
                         const wordSpan = document.createElement('span');
                         wordSpan.className = 'split-word';
+                        
+                        
                         wordStr.split('').forEach(charStr => {
       
                             const charSpan = document.createElement('span');
                             charSpan.className = 'split-char';
+       
                             charSpan.textContent = charStr;
-               
+ 
                             wordSpan.appendChild(charSpan);
                         });
+                        
                         target.appendChild(wordSpan);
+          
                         if (wIdx < words.length - 1) target.appendChild(document.createTextNode(' '));
-        
                     });
                     target.setAttribute('data-compiled', 'true');
                 }
@@ -584,22 +625,42 @@ class="rainbow-btn cascade-item" id="p2-back">Back</button>
                 let dx = l.baseX - cMouseX, dy = l.baseY - cMouseY;
                 let dist = Math.sqrt(dx*dx + dy*dy);
                 if (dist 
+                
                 < 150) {
                     let p = (150 - dist) / 150; l.targetScaleX = 1 + p * 0.95; l.targetScaleY = 1 - p * 0.45; 
                 } else { l.targetScaleX = 1; l.targetScaleY = 1; }
+               
+                
                 l.vx = (l.vx + (l.targetScaleX - l.scaleX) * 0.12) * 0.78; l.scaleX += l.vx;
   
                 l.vy = (l.vy + (l.targetScaleY - l.scaleY) * 0.12) * 0.78; l.scaleY += l.vy;
                 ctx.save(); ctx.translate(l.baseX, l.baseY); ctx.scale(l.scaleX, l.scaleY);
-                ctx.fillStyle = "#ffffff"; ctx.fillText(l.char, 0, 0); ctx.restore();
+                ctx.fillStyle = "#ffffff"; ctx.fillText(l.char, 
+                0, 0); ctx.restore();
             });
             requestAnimationFrame(animateTextPressure);
         }
 
-        document.fonts.ready.then(() => { 
-            initTextCanvas(); animateTextPressure(); 
+        // --- 防止网络超时导致黑屏的加载容灾逻辑 ---
+        function runMainInit() {
+            initTextCanvas();
+            animateTextPressure(); 
             triggerPageCascadeAnimation('p1', document.getElementById('p1-content'));
-        });
+        }
+
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            runMainInit();
+        } else {
+            window.addEventListener('DOMContentLoaded', runMainInit);
+        }
+
+        if (document.fonts) {
+            document.fonts.ready.then(() => {
+                initTextCanvas();
+            });
+        }
+        // -------------------------------------
+
         const domeWrapper = document.getElementById('dome-wrapper');
         const domeScene = document.getElementById('dome-scene');
         let activeFocusedSegment = null;
@@ -615,13 +676,16 @@ class="rainbow-btn cascade-item" id="p2-back">Back</button>
                 if (!activeFocusedSegment) {
                     activeFocusedSegment = seg;
                     seg.classList.add('focused');
+                    // 
+                    // 调整放大照片的 scale 从 1.8 变为 1.4，增加上下间隙
                     seg.style.transform 
-                    = `rotateY(${-rotY}deg) rotateX(${-rotX}deg) translateZ(350px) scale(2.2)`;
+                    = `rotateY(${-rotY}deg) rotateX(${-rotX}deg) translateZ(600px) scale(1.4)`;
                 } else if (activeFocusedSegment === seg) {
                     seg.classList.remove('focused');
+         
                     seg.style.transform = seg.dataset.origTransform;
+            
                     activeFocusedSegment = null;
-          
                 }
             });
             domeWrapper.appendChild(seg);
@@ -643,7 +707,8 @@ class="rainbow-btn cascade-item" id="p2-back">Back</button>
             rotX += (tRotX - rotX) * 0.1;
             domeWrapper.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) scale(0.75)`;
             if (activeFocusedSegment) {
-                activeFocusedSegment.style.transform = `rotateY(${-rotY}deg) rotateX(${-rotX}deg) translateZ(350px) scale(2.2)`;
+                // 同步这里的 scale，使其在多维旋转时也保持 1.4 缩放比例以留出上下间隙
+                activeFocusedSegment.style.transform = `rotateY(${-rotY}deg) rotateX(${-rotX}deg) translateZ(600px) scale(1.4)`;
             }
             requestAnimationFrame(animDome);
         }
@@ -654,8 +719,6 @@ class="rainbow-btn cascade-item" id="p2-back">Back</button>
         const p3Content = document.getElementById('page-3');
         const sharedRainbow = document.getElementById('shared-rainbow');
         const transitionSwipe = document.getElementById('rainbow-transition');
-
-        // 音乐控制相关 JS 逻辑
         const bgMusic = document.getElementById('bg-music');
         const musicContainer = document.getElementById('music-container');
         const musicIcon = musicContainer.querySelector('.music-icon');
@@ -664,22 +727,18 @@ class="rainbow-btn cascade-item" id="p2-back">Back</button>
             p1Content.classList.remove('active'); sharedRainbow.className = 'state-p2';
             setTimeout(() => { p2Content.classList.add('active'); triggerPageCascadeAnimation('p2', p2Content); }, 600);
             
-            // 点击 Start 按钮同步自动播放音乐 (现代浏览器要求必须在用户点击之后才能播放音频)
             bgMusic.play().then(() => {
                 musicIcon.classList.add('playing');
             }).catch(err => {
+   
                 console.log("音频自动播放被拦截:", err);
             });
         });
-
-        // 双击音乐控制区：只关闭音乐，不隐藏符号
         musicContainer.addEventListener('dblclick', (e) => {
             e.stopPropagation();
             bgMusic.pause();
             musicIcon.classList.remove('playing');
         });
-
-        // 附加彩蛋：允许单击符号重新恢复播放
         musicContainer.addEventListener('click', () => {
             if (bgMusic.paused) {
                 bgMusic.play().then(() => {
@@ -687,12 +746,10 @@ class="rainbow-btn cascade-item" id="p2-back">Back</button>
                 });
             }
         });
-
         document.getElementById('p2-back').addEventListener('click', () => {
             p2Content.classList.remove('active'); sharedRainbow.className = 'state-p1';
             setTimeout(() => { p1Content.classList.add('active'); triggerPageCascadeAnimation('p1', p1Content); }, 600);
         });
-        // 修改路由逻辑：进入P3不再隐藏彩虹
         document.getElementById('p2-next').addEventListener('click', () => {
             transitionSwipe.classList.add('swipe-forward');
             setTimeout(() => { 
@@ -700,17 +757,17 @@ class="rainbow-btn cascade-item" id="p2-back">Back</button>
                 p3Content.classList.add('active'); 
             }, 800);
             setTimeout(() => 
+         
             { transitionSwipe.classList.remove('swipe-forward'); triggerPageCascadeAnimation('p3', p3Content); }, 1600);
         });
-        // 修改路由逻辑：从P3返回
         document.getElementById('p3-back').addEventListener('click', () => {
             if (activeFocusedSegment) {
                 activeFocusedSegment.classList.remove('focused');
                 activeFocusedSegment.style.transform = activeFocusedSegment.dataset.origTransform;
                 activeFocusedSegment = null;
             }
-          
             transitionSwipe.classList.add('swipe-backward');
+       
             setTimeout(() => { 
                 p3Content.classList.remove('active'); 
                 p2Content.classList.add('active'); 
@@ -770,6 +827,7 @@ class="rainbow-btn cascade-item" id="p2-back">Back</button>
                 const clickY = e.clientY - rect.top;
                 btn.style.setProperty('--ripple-x', clickX + 'px');
                 btn.style.setProperty('--ripple-y', clickY 
+                
                 + 'px');
                 btn.classList.add('btn-active-ink');
             });
@@ -778,28 +836,28 @@ class="rainbow-btn cascade-item" id="p2-back">Back</button>
                 if (!text) {
                     setTimeout(() => { btn.classList.remove('btn-active-ink'); }, 600);
                     return;
-                
             }
+    
                 if (isPrivate) {
                     launchStar(text, true);
                 } else {
                     const newMsgRef = publicMessagesRef.push();
-                    
                     const starId = newMsgRef.key;
+ 
                     localRenderedStarIds.add(starId);
                     newMsgRef.set({
                         text: text,
                         timestamp: firebase.database.ServerValue.TIMESTAMP
-       
+           
                     }).then(() => {
                         launchStar(text, false);
                     }).catch((error) => {
                         console.error("Firebase write error: ", error);
-          
+              
                     });
                 }
                 setTimeout(() => { btn.classList.remove('btn-active-ink');
-            }, 600);
+                }, 600);
             });
         }
         handleInkSubmit('submit-private', true);
